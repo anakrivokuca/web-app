@@ -8,16 +8,17 @@
 (use 'compojure.core)
 (use '[compojure.route :as route])
 
+(use 'web-app.view)
+
 #_(defn handler
 [{:keys [uri query-string]}]
 {:body (format "You requested %s with query %s" uri query-string)})
 
 (defroutes handler
-  (GET "/" [] "Hello there")
-
+  (GET "/" [] (index-page))
   (GET "/users/:id" [id]
       (format "You requested id %s" id))
-  
+  (route/resources "/")
   (route/not-found "Sorry, there's nothing here."))
 
 
