@@ -1,12 +1,25 @@
 (ns web-app.core)
+
 (use '[ring.adapter.jetty :only (run-jetty)])
 (use 'ring.middleware.reload)
 (use 'ring.middleware.stacktrace) 
 (use 'web-app.middleware)
 
-(defn handler
+(use 'compojure.core)
+(use '[compojure.route :as route])
+
+#_(defn handler
 [{:keys [uri query-string]}]
 {:body (format "You requested %s with query %s" uri query-string)})
+
+(defroutes handler
+  (GET "/" [] "Hello there")
+
+  (GET "/users/:id" [id]
+      (format "You requested id %s" id))
+  
+  (route/not-found "Sorry, there's nothing here."))
+
 
 (def app
   (-> #'handler
