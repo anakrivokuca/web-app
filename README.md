@@ -1,13 +1,15 @@
 # web-app
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure web application designed to learn Clojure.
+It uses ring, compojure and hiccup libraries.
 
-## Usage
+## Setup instructions for running locally
 
-FIXME
+* Download and install [leiningen](https://github.com/technomancy/leiningen).
+
+* cd to the web-app project directory and run `lein run`.
+(If you use leiningen 1, run `lein deps` first.)
 
 ## License
-
-Copyright © 2013 FIXME
 
 Distributed under the Eclipse Public License, the same as Clojure.
