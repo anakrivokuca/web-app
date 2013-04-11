@@ -1,7 +1,7 @@
 body {
 	background: #fff;
 	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
+	font-size: 14px;
 	margin: 0;
 	min-width: 960px;
 	padding: 0;
@@ -16,6 +16,15 @@ body {
 	overflow: hidden;
 	padding: 0;
 	width: 960px;
+}
+#header div a.logo {
+	display: block;
+	float: left;
+	margin: 21px 0 0 26px;
+	padding: 0
+}
+#header div a.logo img {
+	border: 0;
 }
 #header div ul {
 	margin:0;
@@ -61,7 +70,7 @@ body {
 	width: 960px;
 }
 #body .body {
-	padding: 12% 0 0;
+	padding: 8% 0 0;
 }
 #body .body h1 {
 	color: #e91391;
@@ -84,15 +93,58 @@ body {
 #body .body p a:hover {
 	color: #e91391;
 }
+#body table {
+	font-size: 14px;
+}
+#body .body table {
+	color: #7d7978;
+	line-height: 24px;
+	margin: 0;
+	padding: 0 30px 25px;
+	text-align: justify;
+}
+#body .body table a {
+	color: #7D7978;
+	text-decoration: underline;
+}
+#body .body table a:hover {
+	color: #e91391;
+}
+#body h2 {
+	color: #e91391;
+	font-family: 'Forum-Regular';
+	font-size:30px;
+	font-weight:normal;
+	letter-spacing: 0.05em;
+	margin: 0;
+	padding: 10px 0 10px 10px;
+}
+#body .form {
+	background: url(../images/bg-content.png) no-repeat top center;
+	margin: 0 0 63px;
+	min-height: 330px;
+	padding: 0px 0 0 30px;
+}
+#body .form h4 {
+	border-bottom: 1px solid #ebebeb;
+	color: #ff9600;
+	font-family: 'Forum-Regular';
+	font-size: 24px;
+	font-weight: normal;
+	letter-spacing: 0.05em;
+	margin: 0 0 30px;
+	padding: 30px 0 0;
+	width: 460px;
+}
 
 #footer {
-	height: 300px;
+	height: 200px;
 	margin: 0;
 	padding: 0;
 }
 #footer p {
 	color: #9b9b9b;
 	margin: 0;
-	padding: 250px 0 0;
+	padding: 220px 0 0;
 	text-align: center;
 }

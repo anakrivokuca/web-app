@@ -1,9 +1,9 @@
-(ns web-app.view)
+(ns web-app.template)
 
 (use 'hiccup.core)
 (use 'hiccup.page)
 
-(defn index-page []
+(defn template-page [uri content]
   (html 
     [:head
      [:meta {:charset "UTF-8"}] 
@@ -14,20 +14,35 @@
     [:body
      [:div#header
       [:div
-       [:ul
-        [:li.selected
-         [:a {:href "index.html"} "home"]]
-        [:li
-         [:a {:href "blog.html"} "blog"]]
-        [:li
-         [:a {:href "contact.html"} "contact us"]]]]]
-     [:div#body
-      [:div.header
+       [:a.logo
        [:img {:src "images/clojure_quick_introduction.png" :alt ""}]
        ]
-      [:div.body
-       [:h1 "My Clojure Web Application"]
-       [:p "This website is implemented in " [:a {:href "http://clojure.org/"} "Clojure"] " as an example of building Clojure web applications. Hiccup is a library for representing HTML in Clojure. It uses vectors to represent elements, and maps to represent an element's attributes. Do not hesitate to ask for help on this blog."]
-       [:p "This website is implemented in " [:a {:href "http://clojure.org/"} "Clojure"] " as an example of building Clojure web applications. Hiccup is a library for representing HTML in Clojure. It uses vectors to represent elements, and maps to represent an element's attributes. Do not hesitate to ask for help on this blog."]]]
+       
+        (cond
+          (= uri "/") [:ul 
+                       [:li.selected
+                        [:a {:href "/"} "home"]]
+                       [:li
+                        [:a {:href "/register"} "register"]]
+                       [:li
+                        [:a {:href "/login"} "login"]]]
+
+          (= uri "/register") [:ul 
+                               [:li
+                                [:a {:href "/"} "home"]]
+                               [:li.selected
+                                [:a {:href "/register"} "register"]]
+                               [:li
+                                [:a {:href "/login"} "login"]]]
+          
+          (= uri "/login") [:ul 
+                            [:li
+                             [:a {:href "/"} "home"]]
+                            [:li
+                             [:a {:href "/register"} "register"]]
+                            [:li.selected
+                             [:a {:href "/login"} "login"]]])]]
+     [:div#body
+      content]
      [:div#footer
       [:p "Copyright &copy; 2013. All Rights Reserved"]]]))
