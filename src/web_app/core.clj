@@ -9,6 +9,7 @@
 (use '[compojure.route :as route])
 
 (use 'web-app.index)
+(use 'web-app.register)
 (use 'web-app.login)
 (defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
 
@@ -18,6 +19,7 @@
 
 (defroutes handler
   (GET "/" [] (index-page "/"))
+  (GET "/register" [] (register-page "/register"))
   (GET "/login" [] (login-page "/login"))
   (GET "/users/:id" [id]
       (format "You requested id %s" id))

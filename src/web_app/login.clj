@@ -23,7 +23,8 @@
               [:tr
                [:td]
                [:td
-                [:a {:href "/login/reset"} "Forgot your password?"]]]])]])
+                [:a {:href "/login/reset"} "Forgot your password?"]]]])
+    [:p "If you are not registered, you can register " [:a {:href "/register"} "here" ] "."]]])
 
 (defn login-page [uri]
      (template-page
