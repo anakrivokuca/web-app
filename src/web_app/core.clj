@@ -31,6 +31,7 @@
   (-> #'handler
     (wrap-request-logging)
     (wrap-reload)
+    ;(wrap-favicon)
     (wrap-stacktrace)))
 
 

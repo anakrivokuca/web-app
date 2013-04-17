@@ -3,11 +3,11 @@
 (use 'hiccup.core)
 (use 'hiccup.page)
 
-(defn template-page [uri content]
+(defn template-page [title uri content]
   (html 
     [:head
      [:meta {:charset "UTF-8"}] 
-     [:title "My home page"]
+     [:title title]
      (include-css "/css/style.css")
      ;[:link {:rel "stylesheet" :href "css/style.css" :type "text/css"}]
      ]

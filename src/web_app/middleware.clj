@@ -12,3 +12,11 @@
           total  (- finish start)]
       (log "request %s %s (%dms)" request-method uri total)
       resp)))
+
+#_(defn wrap-favicon [handler]
+  (fn [req]
+    (if (= [:get "/favicon.ico"] [(:request-method req) (:uri req)])
+      {:status 404
+       :headers {}
+       :body ""}
+      (handler req))))

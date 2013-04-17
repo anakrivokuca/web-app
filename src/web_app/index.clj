@@ -4,6 +4,7 @@
 
 (defn index-page [uri]
   (template-page 
+    "Home page"
     uri
     [:div.body
        [:h1 "My Clojure Web Application"]

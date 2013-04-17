@@ -34,5 +34,6 @@
 
 (defn register-page [uri]
      (template-page
+       "Register page" 
        uri 
        register-box))

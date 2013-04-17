@@ -28,6 +28,7 @@
 
 (defn login-page [uri]
      (template-page
+       "Login page"
        uri 
        login-box))
 
