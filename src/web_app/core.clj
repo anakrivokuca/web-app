@@ -2,8 +2,9 @@
 
 (use '[ring.adapter.jetty :only (run-jetty)])
 (use 'ring.middleware.reload)
-(use 'ring.middleware.stacktrace) 
-(use 'web-app.middleware)
+(use 'ring.middleware.stacktrace)
+(use 'ring.middleware.params) 
+(use 'web-app.middleware) 
 
 (use 'compojure.core)
 (use '[compojure.route :as route])
@@ -11,7 +12,8 @@
 (use 'web-app.index)
 (use 'web-app.register)
 (use 'web-app.login)
-(defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
+(use 'web-app.users)
+(use 'web-app.mongo)
 
 #_(defn handler
 [{:keys [uri query-string]}]
@@ -20,7 +22,10 @@
 (defroutes handler
   (GET "/" [] (index-page "/"))
   (GET "/register" [] (register-page "/register"))
+  (POST "/register" [name email user pass repeat-pass] ;{{:strs [name email user pass repeat-pass]} :form-params}
+        (do-register name email user pass repeat-pass))
   (GET "/login" [] (login-page "/login"))
+  (GET "/users" [] (users-page "/users"))
   (GET "/users/:id" [id]
       (format "You requested id %s" id))
   (route/resources "/")
@@ -31,8 +36,9 @@
   (-> #'handler
     (wrap-request-logging)
     (wrap-reload)
+    (wrap-params) 
     ;(wrap-favicon)
     (wrap-stacktrace)))
 
-
-(def server (run-jetty #'app {:port 8080 :join? false}))
+(def server
+  (run-jetty #'app {:port 8080 :join? false}))

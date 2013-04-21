@@ -1,8 +1,12 @@
 (ns web-app.register)
 
 (use 'web-app.template)
+(use 'web-app.mongo) 
 
 (use 'hiccup.form)
+
+(require '[ring.util.response :as response])
+
 
 (def register-box
   [:div.body
@@ -37,3 +41,12 @@
        "Register page" 
        uri 
        register-box))
+
+(defn do-register [name email user pass repeat-pass]
+  (let [lower-user (.toLowerCase user)]
+    (if (verify-register-form name email lower-user pass repeat-pass)
+    (do
+        (insert-user name email lower-user pass) ;)
+        ;(session/put! :user lower-user)
+        (response/redirect "/"))
+        )))

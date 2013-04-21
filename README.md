@@ -5,7 +5,11 @@ It uses ring, compojure and hiccup libraries.
 
 ## Setup instructions for running locally
 
-* Download and install [leiningen](https://github.com/technomancy/leiningen).
+* Download and install [Leiningen](https://github.com/technomancy/leiningen).
+
+* Download and install [MongoDB](http://www.mongodb.org/).
+
+* Start MongoDB.
 
 * cd to the web-app project directory and run `lein run`.
 (If you use leiningen 1, run `lein deps` first.)

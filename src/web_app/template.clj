@@ -25,7 +25,9 @@
                        [:li
                         [:a {:href "/register"} "register"]]
                        [:li
-                        [:a {:href "/login"} "login"]]]
+                        [:a {:href "/login"} "login"]]
+                       [:li
+                             [:a {:href "/users"} "users"]]]
 
           (= uri "/register") [:ul 
                                [:li
@@ -33,7 +35,9 @@
                                [:li.selected
                                 [:a {:href "/register"} "register"]]
                                [:li
-                                [:a {:href "/login"} "login"]]]
+                                [:a {:href "/login"} "login"]]
+                               [:li
+                             [:a {:href "/users"} "users"]]]
           
           (= uri "/login") [:ul 
                             [:li
@@ -41,7 +45,19 @@
                             [:li
                              [:a {:href "/register"} "register"]]
                             [:li.selected
-                             [:a {:href "/login"} "login"]]])]]
+                             [:a {:href "/login"} "login"]]
+                            [:li
+                             [:a {:href "/users"} "users"]]]
+          
+          (= uri "/users") [:ul 
+                            [:li
+                             [:a {:href "/"} "home"]]
+                            [:li
+                             [:a {:href "/register"} "register"]]
+                            [:li
+                             [:a {:href "/login"} "login"]]
+                            [:li.selected
+                             [:a {:href "/users"} "users"]]])]]
      [:div#body
       content]
      [:div#footer

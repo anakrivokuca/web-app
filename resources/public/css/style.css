@@ -110,6 +110,17 @@ body {
 #body .body table a:hover {
 	color: #e91391;
 }
+#body .body table th {
+	width: 200px;
+	border-bottom: 1px solid #ebebeb;
+	color: #ff9600;
+	font-family: 'Forum-Regular';
+	font-size: 24px;
+	font-weight: normal;
+	letter-spacing: 0.05em;
+	margin: 0 0 30px;
+	padding: 30px 0 0;
+}
 #body h2 {
 	color: #e91391;
 	font-family: 'Forum-Regular';
