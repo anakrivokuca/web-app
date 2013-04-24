@@ -1,28 +1,41 @@
 (ns web-app.users)
 
 (use 'web-app.template)
-(use 'web-app.mongo) 
- 
-(defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
+(use 'web-app.mongo)
+
+(use 'hiccup.form)
+
+(require '[ring.util.response :as response])
 
 
-(def users-table
+(defn users-table [users-fn] 
   [:div.body
    [:h2 "Users"] 
    [:div.form
+    
     [:table
      [:tr
       [:th "Name:"]
       [:th "Username:"]
-      [:th "Email:"]]
-     (for [i (dbg (get-users))]
+      [:th "Email:"]
+      [:th "Action:"]]
+     (for [i (users-fn)]
        (identity [:tr
-                  [:td (dbg (i :name))]
-                  [:td (dbg (i :user))]
-                  [:td (dbg (i :email))]]))]]])
+                  [:td (i :name)]
+                  [:td (i :user)]
+                  [:td (i :email)]
+                  [:td 
+                   (form-to [:post "/users/delete"]
+                            (hidden-field :id (i :_id))
+                            (submit-button "Delete"))]]))]]])
 
 (defn users-page [uri]
-     (template-page
-       "Users page" 
-       uri 
-       users-table))
+  (template-page
+    "Users page" 
+    uri 
+    (users-table get-users)))
+
+(defn do-delete-user [id]
+  (do
+    (delete-user id)
+    (response/redirect "/users")))

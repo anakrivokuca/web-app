@@ -28,6 +28,8 @@
   (GET "/users" [] (users-page "/users"))
   (GET "/users/:id" [id]
       (format "You requested id %s" id))
+  (POST "/users/delete" [id]
+      (do-delete-user (Integer/parseInt id)))
   (route/resources "/")
   (route/not-found "Sorry, there's nothing here."))
 

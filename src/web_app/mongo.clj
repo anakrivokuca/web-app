@@ -10,30 +10,31 @@
 
 (set-connection! conn)
 
-(defn verify-register-form 
-  [name email lower-user pass repeat-pass]
-  (cond
-    (> 3 (.length name) 14) "Name must be 4-13 characters long"
-    (not= name (first (re-seq #"[A-Za-z0-9_]+" name))) "Name must be alphanumeric"
-    (not (nil? (fetch-one :users :where {:email email}))) "Email address is already taken."
-    (not (nil? (fetch-one :users :where {:user lower-user}))) "Username is already taken."
-    (> 3 (.length lower-user) 14) "Username must be 4-13 characters long"
-    (not= lower-user (first (re-seq #"[A-Za-z0-9_]+" lower-user))) "Username must be alphanumeric"
-    (> 6 (.length pass)) "Password has to have more than 6 chars."
-    (not= pass repeat-pass) "Password and confirmed password are not equal."
-    
-    :else true))
+;generate :_id
+(defn- next-seq [coll]
+  (:seq (fetch-and-modify :sequences {:_id coll} {:$inc {:seq 1}}
+                             :return-new? true :upsert? true)))
 
-(defn insert-user
-  [name email lower-user pass]
-  (insert! :users
-                 {:name name
-                  :email email
-                  :user lower-user
-                  :pass pass #_(.encryptPassword (StrongPasswordEncryptor.) pass)}))
+(defn- insert-with-id [coll values]
+  (insert! coll (assoc values :_id (next-seq coll))))
+
 
 (defn get-users []
    (fetch :users))
 
-(defn get-user [username]
-   (fetch-one :users :where {:user username}))
+(defn get-user-by-username [username] 
+  (fetch-one :users :where {:user username}))
+
+(defn get-user-by-email [email] 
+  (fetch-one :users :where {:email email}))
+
+(defn insert-user
+  [name email lower-user pass]
+  (insert-with-id :users 
+                  {:name name
+                   :email email
+                   :user lower-user
+                   :pass pass #_(.encryptPassword (StrongPasswordEncryptor.) pass)}))
+
+(defn delete-user [id]
+  (destroy! :users {:_id id}))
