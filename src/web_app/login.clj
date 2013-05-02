@@ -50,7 +50,6 @@
     (if (not (string? (verify-login-form lower-user pass)))
       (do 
         (session/put! :user lower-user)
-        (session/get :user)
         (response/redirect "/"))
       (do
         (session/flash-put! :error (verify-login-form lower-user pass))
