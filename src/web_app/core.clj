@@ -3,11 +3,14 @@
 (use '[ring.adapter.jetty :only (run-jetty)])
 (use 'ring.middleware.reload)
 (use 'ring.middleware.stacktrace)
-(use 'ring.middleware.params) 
+(use 'ring.middleware.params)
 (use 'web-app.middleware) 
 
 (use 'compojure.core)
 (use '[compojure.route :as route])
+
+(use '[noir.session :as session])
+;(use '[mongo-session.core :only [mongo-session]])
 
 (use 'web-app.index)
 (use 'web-app.register)
@@ -25,6 +28,8 @@
   (POST "/register" [name email user pass repeat-pass] ;{{:strs [name email user pass repeat-pass]} :form-params}
         (do-register name email user pass repeat-pass))
   (GET "/login" [] (login-page "/login"))
+  (POST "/login" [user pass] 
+        (do-login user pass))
   (GET "/users" [] (users-page "/users"))
   (GET "/users/:id" [id]
       (format "You requested id %s" id))
@@ -38,8 +43,10 @@
   (-> #'handler
     (wrap-request-logging)
     (wrap-reload)
-    (wrap-params) 
+    (wrap-params)
     ;(wrap-favicon)
+    (session/wrap-noir-flash)
+    (session/wrap-noir-session #_{:store (mongo-session :sessions)})
     (wrap-stacktrace)))
 
 (def server

@@ -148,6 +148,14 @@ body {
 	width: 460px;
 }
 
+#body .form .error {
+	color: #228b22;
+	font-size: 14px;
+	margin: 0 0 20px;
+	padding: 20px 0 0;
+	width: 460px;
+}
+
 #footer {
 	height: 200px;
 	margin: 0;
