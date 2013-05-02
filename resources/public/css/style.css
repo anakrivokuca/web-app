@@ -93,6 +93,13 @@ body {
 #body .body p a:hover {
 	color: #e91391;
 }
+#body .body .error {
+	color: #e91391;
+	font-size: 20px;
+	margin: 0 0 20px;
+	padding: 20px 0 0;
+	width: 460px;
+}
 #body table {
 	font-size: 14px;
 }

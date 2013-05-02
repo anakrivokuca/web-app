@@ -33,7 +33,10 @@
   (template-page
     "Users page" 
     uri 
-    (users-table get-users)))
+    (if (= "admin" (session/get :user)) 
+      (users-table get-users)
+      [:div.body
+       [:div.error "You are not allowed to see this page."]])))
 
 (defn do-delete-user [id]
   (do

@@ -5,7 +5,6 @@
 
 (use 'hiccup.form)
 
-(require '[noir.session :as session])
 (require '[ring.util.response :as response])
 
 

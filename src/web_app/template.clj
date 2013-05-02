@@ -3,6 +3,8 @@
 (use 'hiccup.core)
 (use 'hiccup.page)
 
+(require '[noir.session :as session])
+
 (defn template-page [title uri content]
   (html 
     [:head
@@ -26,8 +28,10 @@
                         [:a {:href "/register"} "register"]]
                        [:li
                         [:a {:href "/login"} "login"]]
-                       [:li
-                             [:a {:href "/users"} "users"]]]
+                       (if (= "admin" (session/get :user)) 
+                         [:li
+                             [:a {:href "/users"} "users"]])
+                       ]
 
           (= uri "/register") [:ul 
                                [:li
@@ -36,8 +40,10 @@
                                 [:a {:href "/register"} "register"]]
                                [:li
                                 [:a {:href "/login"} "login"]]
-                               [:li
-                             [:a {:href "/users"} "users"]]]
+                               (if (= "admin" (session/get :user))
+                                 [:li
+                                  [:a {:href "/users"} "users"]])
+                               ]
           
           (= uri "/login") [:ul 
                             [:li
@@ -46,8 +52,10 @@
                              [:a {:href "/register"} "register"]]
                             [:li.selected
                              [:a {:href "/login"} "login"]]
-                            [:li
-                             [:a {:href "/users"} "users"]]]
+                            (if (= "admin" (session/get :user))
+                              [:li
+                               [:a {:href "/users"} "users"]])
+                            ]
           
           (= uri "/users") [:ul 
                             [:li
@@ -56,8 +64,10 @@
                              [:a {:href "/register"} "register"]]
                             [:li
                              [:a {:href "/login"} "login"]]
-                            [:li.selected
-                             [:a {:href "/users"} "users"]]])]]
+                            (if (= "admin" (session/get :user))
+                              [:li.selected
+                               [:a {:href "/users"} "users"]])
+                            ])]]
      [:div#body
       content]
      [:div#footer
