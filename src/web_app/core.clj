@@ -30,6 +30,7 @@
   (GET "/login" [] (login-page "/login"))
   (POST "/login" [user pass] 
         (do-login user pass))
+  (GET "/logout" [] (do-logout))
   (GET "/users" [] (users-page "/users"))
   (GET "/users/:id" [id]
       (format "You requested id %s" id))

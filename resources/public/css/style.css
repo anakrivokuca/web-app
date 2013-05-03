@@ -42,7 +42,6 @@ body {
 	line-height: 14px;
 	text-align: center;
 	text-decoration: none;
-	text-transform: capitalize;
 }
 #header div ul li a:hover, #header div ul li.selected a {
 	color:#3b7193;
@@ -68,6 +67,42 @@ body {
 	margin: 0 auto;
 	padding: 0;
 	width: 960px;
+}
+#body .user-info ul {
+	margin:0;
+	list-style:none;
+	padding:20px 0 0;
+	float:right;
+}
+#body .user-info ul li {
+	float:left;
+	margin:0 0 0 20px;
+}
+#body .user-info ul li a {
+	color: #bab6b4;
+	display: block;
+	line-height: 14px;
+	text-align: center;
+	text-decoration: none;
+}
+#body .user-info ul li a:hover, #header div ul li.selected a {
+	color:#3b7193;
+}
+#body .user-info ul li.selected a {
+	font-weight:bold;
+	color:#3b7193;
+}
+#body .user-info ul li:first-child a{
+	background:none;
+}
+#body .user-info ul li a{
+	font-size:14px;
+	text-shadow: 0 1px 0 #d1e6f7;
+	text-decoration:none;
+	color:#6cb2e6;
+	outline:none;
+	background:url(../images/interface.gif) no-repeat left 0;
+	padding:0 0 0 20px;
 }
 #body .body {
 	padding: 8% 0 0;

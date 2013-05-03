@@ -5,6 +5,7 @@
 
 (use 'hiccup.form)
 
+(require '[noir.session :as session])
 (require '[ring.util.response :as response])
 
 
@@ -55,3 +56,7 @@
         (session/flash-put! :user user)
         (response/redirect "/login"))
       )))
+
+(defn do-logout []
+  (session/remove! :user)
+  (response/redirect "/"))
