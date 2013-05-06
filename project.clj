@@ -1,4 +1,4 @@
-(defproject web-app "0.0.5"
+(defproject web-app "1.0.0"
   :description "My Clojure web application"
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [ring "1.1.8"]
