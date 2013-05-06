@@ -6,5 +6,6 @@
                  [hiccup "1.0.3"]
                  ;[org.clojure/java.jdbc "0.3.0-alpha1"]
                  [congomongo "0.4.1"]
-                 [lib-noir "0.5.0"]]
+                 [lib-noir "0.5.0"]
+                 [amalloy/mongo-session "0.0.2"]]
   :main web-app.core )

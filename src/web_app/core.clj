@@ -10,7 +10,7 @@
 (use '[compojure.route :as route])
 
 (use '[noir.session :as session])
-;(use '[mongo-session.core :only [mongo-session]])
+(use '[mongo-session.core :only [mongo-session]])
 
 (use 'web-app.index)
 (use 'web-app.register)
@@ -45,9 +45,8 @@
     (wrap-request-logging)
     (wrap-reload)
     (wrap-params)
-    ;(wrap-favicon)
     (session/wrap-noir-flash)
-    (session/wrap-noir-session #_{:store (mongo-session :sessions)})
+    (session/wrap-noir-session {:store (mongo-session :sessions)})
     (wrap-stacktrace)))
 
 (def server
