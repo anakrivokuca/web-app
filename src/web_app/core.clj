@@ -1,44 +1,34 @@
-(ns web-app.core)
+(ns web-app.core
+  (:require [compojure.route :as route]
+            [noir.session :as session])
+  
+  (:use compojure.core
+        [ring.adapter.jetty :only [run-jetty]]
+        web-app.middleware
+        [ring.middleware.reload :only [wrap-reload]]
+        [ring.middleware.stacktrace :only [wrap-stacktrace]]
+        [ring.middleware.params :only [wrap-params]]
+        [mongo-session.core :only [mongo-session]]
+        [web-app.index :only [index-page]]
+        [web-app.register :only [register-page do-register]]
+        [web-app.login :only [login-page do-login do-logout]]
+        [web-app.users :only [users-page do-delete-user]]))
 
-(use '[ring.adapter.jetty :only (run-jetty)])
-(use 'ring.middleware.reload)
-(use 'ring.middleware.stacktrace)
-(use 'ring.middleware.params)
-(use 'web-app.middleware) 
-
-(use 'compojure.core)
-(use '[compojure.route :as route])
-
-(use '[noir.session :as session])
-(use '[mongo-session.core :only [mongo-session]])
-
-(use 'web-app.index)
-(use 'web-app.register)
-(use 'web-app.login)
-(use 'web-app.users)
-(use 'web-app.mongo)
-
-#_(defn handler
-[{:keys [uri query-string]}]
-{:body (format "You requested %s with query %s" uri query-string)})
 
 (defroutes handler
   (GET "/" [] (index-page "/"))
   (GET "/register" [] (register-page "/register"))
-  (POST "/register" [name email user pass repeat-pass] ;{{:strs [name email user pass repeat-pass]} :form-params}
+  (POST "/register" [name email user pass repeat-pass]
         (do-register name email user pass repeat-pass))
   (GET "/login" [] (login-page "/login"))
   (POST "/login" [user pass] 
         (do-login user pass))
   (GET "/logout" [] (do-logout))
   (GET "/users" [] (users-page "/users"))
-  (GET "/users/:id" [id]
-      (format "You requested id %s" id))
   (POST "/users/delete" [id]
       (do-delete-user (Integer/parseInt id)))
   (route/resources "/")
   (route/not-found "Sorry, there's nothing here."))
-
 
 (def app
   (-> #'handler

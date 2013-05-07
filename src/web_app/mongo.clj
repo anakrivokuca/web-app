@@ -1,9 +1,5 @@
-(ns web-app.mongo)
-
-(use 'somnium.congomongo)
-(use '[somnium.congomongo.config :only [*mongo-config*]])
-;(import  '[org.jasypt.util.password StrongPasswordEncryptor])
-
+(ns web-app.mongo
+  (:use somnium.congomongo))
 
 (def conn 
   (make-connection "mydb"))
@@ -17,7 +13,6 @@
 
 (defn- insert-with-id [coll values]
   (insert! coll (assoc values :_id (next-seq coll))))
-
 
 (defn get-users []
    (fetch :users))
@@ -34,7 +29,7 @@
                   {:name name
                    :email email
                    :user lower-user
-                   :pass pass #_(.encryptPassword (StrongPasswordEncryptor.) pass)}))
+                   :pass pass}))
 
 (defn delete-user [id]
   (destroy! :users {:_id id}))

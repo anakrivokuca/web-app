@@ -1,70 +1,79 @@
-(ns web-app.template)
+(ns web-app.template
+  (:require [noir.session :as session])
+  (:use [hiccup.core :only [html]]
+        [hiccup.page :only [include-css]]))
 
-(use 'hiccup.core)
-(use 'hiccup.page)
+(defn- home-selected [user]
+  [:ul
+   [:li.selected
+    [:a {:href "/"} "Home"]]
+   (if (= "admin" user)
+     [:li
+      [:a {:href "/users"} "Users"]])])
 
-(require '[noir.session :as session])
+(defn- users-selected [user]
+  [:ul
+   [:li
+    [:a {:href "/"} "Home"]]
+   (if (= "admin" user)
+     [:li.selected
+      [:a {:href "/users"} "Users"]])])
 
+(defn- register-login-selected [user]
+  [:ul
+   [:li
+    [:a {:href "/"} "Home"]]
+   (if (= "admin" user)
+     [:li
+      [:a {:href "/users"} "Users"]])]) 
 
-(defn menu [uri user]
+(defn- menu [uri user]
   (cond
-    (= uri "/") [:ul
-                 [:li.selected
-                  [:a {:href "/"} "Home"]]
-                 (if (= "admin" user)
-                   [:li
-                    [:a {:href "/users"} "Users"]])]
-         
-    (= uri "/users") [:ul
-                      [:li
-                       [:a {:href "/"} "Home"]]
-                      (if (= "admin" user)
-                        [:li.selected
-                         [:a {:href "/users"} "Users"]])]
-         
-    (or (= uri "/register") (= uri "/login")) [:ul
-                                               [:li
-                                                [:a {:href "/"} "Home"]]
-                                               (if (= "admin" user)
-                                                 [:li
-                                                  [:a {:href "/users"} "Users"]])]
-    )) 
+    (= uri "/") (home-selected user)
+    (= uri "/users") (users-selected user)
+    (or (= uri "/register") (= uri "/login")) (register-login-selected user))) 
 
-(defn user-menu [uri user]
+(defn- user-logged-in [user]
+  [:ul
+   [:li
+    [:a (str "Logged in as " user)]]
+   [:li
+    [:a {:href "/logout"} "Logout"]]])
+
+(def ^:private home-users-selected
+  [:ul
+   [:li
+    [:a {:href "/register"} "Register"]]
+   [:li
+    [:a {:href "/login"} "Login"]]])
+
+(def ^:private register-selected
+  [:ul
+   [:li.selected
+    [:a {:href "/register"} "Register"]]
+   [:li
+    [:a {:href "/login"} "Login"]]])
+
+(def ^:private login-selected
+  [:ul
+   [:li
+    [:a {:href "/register"} "Register"]]
+   [:li.selected
+    [:a {:href "/login"} "Login"]]])
+
+(defn- user-menu [uri user]
   (cond
-    user [:ul
-          [:li
-           [:a (str "Logged in as " user)]]
-          [:li
-           [:a {:href "/logout"} "Logout"]]]
-         
-    (or (= uri "/") (= uri "/users")) [:ul
-                                       [:li
-                                        [:a {:href "/register"} "Register"]]
-                                       [:li
-                                        [:a {:href "/login"} "Login"]]]
-         
-    (= uri "/register") [:ul
-                         [:li.selected
-                          [:a {:href "/register"} "Register"]]
-                         [:li
-                          [:a {:href "/login"} "Login"]]]
-    
-    (= uri "/login") [:ul
-                      [:li
-                       [:a {:href "/register"} "Register"]]
-                      [:li.selected
-                       [:a {:href "/login"} "Login"]]]
-    ))
+    user (user-logged-in user)
+    (or (= uri "/") (= uri "/users")) home-users-selected
+    (= uri "/register") register-selected
+    (= uri "/login") login-selected))
 
 (defn template-page [title uri content]
   (html 
     [:head
      [:meta {:charset "UTF-8"}] 
      [:title title]
-     (include-css "/css/style.css")
-     ;[:link {:rel "stylesheet" :href "css/style.css" :type "text/css"}]
-     ]
+     (include-css "/css/style.css")]
     (let [user (session/get :user)]
       [:body
        

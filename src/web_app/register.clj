@@ -1,15 +1,13 @@
-(ns web-app.register)
-
-(use 'web-app.template)
-(use 'web-app.mongo) 
-
-(use 'hiccup.form)
-
-(require '[noir.session :as session])
-(require '[ring.util.response :as response])
+(ns web-app.register
+  (:require [noir.session :as session]
+            [ring.util.response :as response])
+  
+  (:use [hiccup.form :only [form-to label text-field email-field password-field submit-button]]
+        [web-app.template :only [template-page]]
+        [web-app.mongo :only [insert-user get-user-by-username get-user-by-email]]))
 
 
-(defn register-box [] 
+(defn- register-box [] 
   [:div.body
    [:h2 "Register"] 
    [:div.form
@@ -34,9 +32,7 @@
                [:td (password-field :repeat-pass)]]
               [:tr
                [:td]
-               [:td (submit-button "Register") 
-                ;[:button {:type "submit"} "Register"]
-                ]]])]])
+               [:td (submit-button "Register")]]])]])
 
 (defn register-page [uri]
   (template-page
@@ -44,7 +40,7 @@
     uri
     (register-box)))
 
-(defn verify-register-form 
+(defn- verify-register-form 
   [name email lower-user pass repeat-pass]
   (cond
     (> 3 (.length name)) "Name must be at least 3 characters long"
@@ -60,9 +56,9 @@
     :else true))
 
 (defn do-register [name email user pass repeat-pass]
-  (let [lower-user (.toLowerCase user)
+  (let [lower-user (clojure.string/lower-case user)
         error-msg (verify-register-form name email lower-user pass repeat-pass)]
-    (if (not (string? error-msg))
+    (if-not (string? error-msg)
       (do
         (insert-user name email lower-user pass)
         (session/put! :user lower-user)
@@ -72,5 +68,4 @@
         (session/flash-put! :name name)
         (session/flash-put! :email email)
         (session/flash-put! :user user)
-        (response/redirect "/register"))
-        )))
+        (response/redirect "/register")))))

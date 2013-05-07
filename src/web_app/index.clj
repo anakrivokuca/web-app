@@ -1,6 +1,5 @@
-(ns web-app.index)
-
-(use 'web-app.template)
+(ns web-app.index
+  (:use [web-app.template :only [template-page]]))
 
 (defn index-page [uri]
   (template-page 

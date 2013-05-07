@@ -1,15 +1,12 @@
-(ns web-app.users)
-
-(use 'web-app.template)
-(use 'web-app.mongo)
-
-(use 'hiccup.form)
-
-(require '[noir.session :as session])
-(require '[ring.util.response :as response])
+(ns web-app.users
+  (:require [noir.session :as session]
+            [ring.util.response :as response])
+  (:use [hiccup.form :only [form-to hidden-field submit-button]]
+        [web-app.template :only [template-page]]
+        [web-app.mongo :only [get-users delete-user]]))
 
 
-(defn users-table [users-fn] 
+(defn- users-table [users-fn] 
   [:div.body
    [:h2 "Users"] 
    [:div.form

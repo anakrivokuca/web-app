@@ -1,15 +1,13 @@
-(ns web-app.login)
-
-(use 'web-app.template)
-(use 'web-app.mongo)
-
-(use 'hiccup.form)
-
-(require '[noir.session :as session])
-(require '[ring.util.response :as response])
+(ns web-app.login
+  (:require [noir.session :as session]
+            [ring.util.response :as response])
+  
+  (:use [hiccup.form :only [form-to label text-field password-field]]
+        [web-app.template :only [template-page]]
+        [web-app.mongo :only [get-user-by-username]]))
 
 
-(defn login-box [] 
+(defn- login-box [] 
   [:div.body
    [:h2 "Login"] 
    [:div.form
@@ -38,7 +36,7 @@
     uri
     (login-box)))
 
-(defn verify-login-form 
+(defn- verify-login-form 
   [lower-user pass]
   (cond
     (nil? (get-user-by-username lower-user)) "Username does not exist."
@@ -46,16 +44,16 @@
     :else true))
 
 (defn do-login [user pass]
-  (let [lower-user (.toLowerCase user)]
-    (if (not (string? (verify-login-form lower-user pass)))
+  (let [lower-user (clojure.string/lower-case user)
+        error-msg (verify-login-form lower-user pass)]
+    (if-not (string? error-msg)
       (do 
         (session/put! :user lower-user)
         (response/redirect "/"))
       (do
-        (session/flash-put! :error (verify-login-form lower-user pass))
+        (session/flash-put! :error error-msg)
         (session/flash-put! :user user)
-        (response/redirect "/login"))
-      )))
+        (response/redirect "/login")))))
 
 (defn do-logout []
   (session/remove! :user)
