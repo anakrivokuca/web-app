@@ -1,4 +1,4 @@
-(defproject web-app "1.0.0"
+(defproject web-app "1.0.1"
   :description "My Clojure web application"
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [ring "1.1.8"]
@@ -7,4 +7,4 @@
                  [congomongo "0.4.1"]
                  [lib-noir "0.5.0"]
                  [amalloy/mongo-session "0.0.2"]]
-  :main web-app.core )
+  :main web-app.core)
