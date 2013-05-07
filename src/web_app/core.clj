@@ -2,7 +2,7 @@
   (:require [compojure.route :as route]
             [noir.session :as session])
   
-  (:use compojure.core
+  (:use [compojure.core :only [defroutes GET POST]]
         [ring.adapter.jetty :only [run-jetty]]
         web-app.middleware
         [ring.middleware.reload :only [wrap-reload]]
@@ -41,3 +41,6 @@
 
 (def server
   (run-jetty #'app {:port 8080 :join? false}))
+
+(defn -main [& args]
+  server)
