@@ -12,7 +12,8 @@
         [web-app.index :only [index-page]]
         [web-app.register :only [register-page do-register]]
         [web-app.login :only [login-page do-login do-logout]]
-        [web-app.users :only [users-page do-delete-user]]))
+        [web-app.users :only [users-page do-delete-user]]
+        [web-app.extract_data :only [process-data]]))
 
 
 (defroutes handler
@@ -39,8 +40,10 @@
     (session/wrap-noir-session {:store (mongo-session :sessions)})
     (wrap-stacktrace)))
 
-(def server
-  (run-jetty #'app {:port 8080 :join? false}))
+(defn start-server [] 
+  (run-jetty #'app {:port 8080 :join? false})
+  (println "\nWelcome to the web-app. Browse to http://localhost:8080 to get started!"))
 
 (defn -main [& args]
-  server)
+  (process-data)
+  (start-server))

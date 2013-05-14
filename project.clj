@@ -6,5 +6,7 @@
                  [hiccup "1.0.3"]
                  [congomongo "0.4.1"]
                  [lib-noir "0.5.0"]
-                 [amalloy/mongo-session "0.0.2"]]
+                 [amalloy/mongo-session "0.0.2"]
+                 [hickory "0.4.0"]
+                 [org.clojure/data.json "0.2.1"]]
   :main web-app.core)
