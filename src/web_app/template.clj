@@ -7,6 +7,18 @@
   [:ul
    [:li.selected
     [:a {:href "/"} "Home"]]
+   [:li
+    [:a {:href "/books"} "Books"]]
+   (if (= "admin" user)
+     [:li
+      [:a {:href "/users"} "Users"]])])
+
+(defn- books-selected [user]
+  [:ul
+   [:li
+    [:a {:href "/"} "Home"]]
+   [:li.selected
+    [:a {:href "/books"} "Books"]]
    (if (= "admin" user)
      [:li
       [:a {:href "/users"} "Users"]])])
@@ -15,6 +27,8 @@
   [:ul
    [:li
     [:a {:href "/"} "Home"]]
+   [:li
+    [:a {:href "/books"} "Books"]]
    (if (= "admin" user)
      [:li.selected
       [:a {:href "/users"} "Users"]])])
@@ -23,6 +37,8 @@
   [:ul
    [:li
     [:a {:href "/"} "Home"]]
+   [:li
+    [:a {:href "/books"} "Books"]]
    (if (= "admin" user)
      [:li
       [:a {:href "/users"} "Users"]])]) 
@@ -30,8 +46,9 @@
 (defn- menu [uri user]
   (cond
     (= uri "/") (home-selected user)
+    (= uri "/books") (books-selected user) 
     (= uri "/users") (users-selected user)
-    (or (= uri "/register") (= uri "/login")) (register-login-selected user))) 
+    (or (= uri "/register") (= uri "/login") (= uri "/book")) (register-login-selected user))) 
 
 (defn- user-logged-in [user]
   [:ul
@@ -40,7 +57,7 @@
    [:li
     [:a {:href "/logout"} "Logout"]]])
 
-(def ^:private home-users-selected
+(def ^:private home-users-books-selected
   [:ul
    [:li
     [:a {:href "/register"} "Register"]]
@@ -64,7 +81,7 @@
 (defn- user-menu [uri user]
   (cond
     user (user-logged-in user)
-    (or (= uri "/") (= uri "/users")) home-users-selected
+    (or (= uri "/") (= uri "/users") (= uri "/books")) home-users-books-selected
     (= uri "/register") register-selected
     (= uri "/login") login-selected))
 
@@ -80,7 +97,7 @@
        [:div#header
         [:div
          [:a.logo
-          [:img {:src "images/clojure_quick_introduction.png" :alt ""}]]
+          [:img {:src "/images/clojure_quick_introduction.png" :alt "Books"}]]
          (menu uri user)]]
        
        [:div#body

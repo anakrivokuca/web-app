@@ -163,6 +163,10 @@ body {
 	margin: 0 0 30px;
 	padding: 30px 0 0;
 }
+#body .book table th {
+	font-size: 20px;
+	padding: 5px 0 0;
+}
 #body h2 {
 	color: #e91391;
 	font-family: 'Forum-Regular';
@@ -176,7 +180,7 @@ body {
 	background: url(../images/bg-content.png) no-repeat top center;
 	margin: 0 0 63px;
 	min-height: 330px;
-	padding: 0px 0 0 30px;
+	padding: 20px 0 0 30px;
 }
 #body .form h4 {
 	border-bottom: 1px solid #ebebeb;
@@ -189,13 +193,95 @@ body {
 	padding: 30px 0 0;
 	width: 460px;
 }
-
 #body .form .error {
 	color: #228b22;
 	font-size: 14px;
 	margin: 0 0 20px;
 	padding: 20px 0 0;
 	width: 460px;
+}
+#body .bookSmallImg {
+	max-width: 60px;
+}
+.rating-static {
+  width: 60px;
+  height: 16px;
+  display: block;
+  background: url(../images/star-rating.png) 0 0 no-repeat;
+}
+.rating-50 { background-position: 0 0; }
+.rating-40 { background-position: -12px 0; } 
+.rating-30 { background-position: -24px 0; }
+.rating-20 { background-position: -36px 0; }
+.rating-10 { background-position: -48px 0; }
+.rating-0 { background-position: -60px 0; }
+ 
+.rating-5  { background-position: -48px -16px; }
+.rating-15 { background-position: -36px -16px; }
+.rating-25 { background-position: -24px -16px; }
+.rating-35 { background-position: -12px -16px; }
+.rating-45 { background-position: 0 -16px; }
+
+.star-rating,
+.star-rating a:hover,
+.star-rating a:active,
+.star-rating a:focus,
+.star-rating .current-rating {
+	background: url(../images/star.gif) left -1000px repeat-x;
+}
+.star-rating {
+	position:relative;
+	width:125px;
+	height:25px;
+	overflow:hidden;
+	list-style:none;
+	margin:0;
+	padding:0;
+	background-position: left top;
+}
+.star-rating li {
+	display: inline;
+}
+.star-rating a,
+.star-rating .current-rating {
+	position:absolute;
+	top:0;
+	left:0;
+	text-indent:-1000em;
+	height:25px;
+	line-height:25px;
+	outline:none;
+	overflow:hidden;
+	border: none;
+}
+.star-rating a:hover,
+.star-rating a:active,
+.star-rating a:focus {
+	background-position: left bottom;
+}
+.star-rating a.one-star {
+	width:20%;
+	z-index:6;
+}
+.star-rating a.two-stars {
+	width:40%;
+	z-index:5;
+}
+.star-rating a.three-stars {
+	width:60%;
+	z-index:4;
+}
+.star-rating a.four-stars {
+	width:80%;
+	z-index:3;
+}
+.star-rating a.five-stars {
+	width:100%;
+	z-index:2;
+}
+.star-rating .current-rating {
+	z-index:1;
+	background-position: left center;
 }
 
 #footer {

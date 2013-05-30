@@ -33,3 +33,19 @@
 
 (defn delete-user [id]
   (destroy! :users {:_id id}))
+
+(defn get-books []
+   (fetch :books))
+
+(defn get-book-by-id [id]
+   (fetch-one :books :where {:_id id}))
+
+(defn insert-book [book]
+  (insert-with-id :books book))
+
+(defn delete-books []
+  (if (not= (fetch-count :books) 0)
+    (let [ids (for [book (get-books)]
+                (conj [] (:_id book)))]
+      (doseq  [id (range (apply min (flatten ids)) (inc (apply max (flatten ids))))]
+        (destroy! :books {:_id id})))))

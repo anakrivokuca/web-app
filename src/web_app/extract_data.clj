@@ -2,7 +2,8 @@
   (:require [hickory.select :as s]
             [clojure.string :as string]
             [clojure.data.json :as json])
-  (:use hickory.core))
+  (:use hickory.core
+        [web-app.mongo :only [get-books insert-book delete-books]]))
 
 
 (def page-links 
@@ -29,9 +30,6 @@
 (defn get-book-data [json-text] 
   (second (:list (:md:item json-text))))
 
-(defn get-author-data [json-text link] 
-  (last (:list (:md:item json-text))))
-
 (defn get-review-data [json-text link] 
   (let [review-data (:reviews (first (:list (:md:item json-text))))]
     (if (nil? review-data)
@@ -44,50 +42,61 @@
       (recur link get-data-fn)
       data)))
 
-(defn prepare-data [links get-data-fn extract-fn]
-  (if (or (vector? links) (seq? links)) 
-    (pmap #(extract-fn (get-data % get-data-fn)) (flatten links))
-    (extract-fn (get-data links get-data-fn))))
+(defn get-user-rating [page-link]
+  (let [content (s/select (s/child (s/class "desktop")
+                                   (s/tag :head)
+                                   (s/attr :itemprop #(= % "ratingValue")))
+                          (as-hickory (parse (slurp page-link))))]
+    (first (map :content (map :attrs content)))))
 
-(defn extract-author [data]
-    (assoc {} 
-           :name (:name data)
-           :url (:url data)
-           :birthDate (:birthDate data)
-           :gender (:gender data)
-           :review (assoc {} 
-                          :ratingValue (:ratingValue (:aggregateRating data))
-                          :reviewsCount (:reviewsCount (:aggregateRating data)))))
-
-(defn extract-review [data]
+(defn extract-review [data page-link]
   (if-let [name (re-seq #"[A-Za-z]+" (apply str (second (split-at 35 (:author data)))))]
     (assoc {}
            :author (string/capitalize
                      (apply str name))
-           :url (:author data)
            :publishDate (:publishDate data)
-           :description (:reviewBody data))))
+           :description (:reviewBody data)
+           :ratingValue (get-user-rating page-link))))
 
-(defn extract-book [data]
-  (assoc {}
-         :title (apply str (interpose " " (re-seq #"[A-Za-z0-9_]+" (:name data))))
-         :image (:image data)
-         :author (prepare-data (:url (:author data)) get-author-data extract-author)
-         :isbn (:isbn data)
-         :language (:inLanguage data)
-         :bookFormatType (:bookFormatType data)
-         :numberOfPages (:numberOfPages data)
-         :awards (:awards data)
-         :reviews (remove nil? 
-                          (map #(prepare-data (:url %) get-review-data extract-review) 
-                               (:reviews data)))))
+(defn prepare-review-data [links]
+  (if (or (vector? links) (seq? links)) 
+    (pmap #(extract-review (get-data % get-review-data) %) (flatten links))
+    (extract-review (get-data links get-review-data) links)))
 
-(defn prepare-book-data [links]
+(defn get-image-link [page-link]
+  (let [content (s/select (s/child (s/class "desktop")
+                                   (s/tag :head)
+                                   (s/attr :property #(= % "og:image")))
+                          (as-hickory (parse (slurp page-link))))]
+    (first (map :content (map :attrs content)))))
+
+(defn extract-book [data page-link]
+  (let [reviews (remove nil? (map #(prepare-review-data (:url %)) (:reviews data)))]
+    (assoc {}
+           :title (apply str (interpose " " (re-seq #"[A-Za-z0-9_]+" (:name data))))
+           :image (get-image-link page-link)
+           :author (:name (:author data))
+           :isbn (:isbn data)
+           :language (:inLanguage data)
+           :bookFormatType (:bookFormatType data)
+           :numberOfPages (:numberOfPages data)
+           :awards (:awards data)
+           :reviews reviews
+           :ratingCount (count reviews)
+           :ratingValue (double (/ (reduce + 0 (map #(Integer/valueOf (:ratingValue %)) reviews)) 
+                                   (count reviews))))))
+
+(defn prepare-book-data [] 
   (remove nil? (pmap #(let [data (get-book-data (prepare-json (get-json %)))]
                         (if (not (nil? data))
-                          (extract-book data))) (flatten links))))
+                          (extract-book data %))) (flatten extracted-book-links))))
+
+(defn insert-books []
+  (delete-books)
+  (pmap insert-book (prepare-book-data)))
 
 (defn process-data []
   (println "Processing data started!\n")
-  (prepare-book-data extracted-book-links)
+  (time (doall (insert-books)))
+  (println (str (count (get-books)) " books imported!\n"))
   (println "Processing data finished!\n"))

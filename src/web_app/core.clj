@@ -13,6 +13,8 @@
         [web-app.register :only [register-page do-register]]
         [web-app.login :only [login-page do-login do-logout]]
         [web-app.users :only [users-page do-delete-user]]
+        [web-app.books :only [books-page]]
+        [web-app.book :only [book-page]]
         [web-app.extract_data :only [process-data]]))
 
 
@@ -28,6 +30,8 @@
   (GET "/users" [] (users-page "/users"))
   (POST "/users/delete" [id]
       (do-delete-user (Integer/parseInt id)))
+  (GET "/books" [] (books-page "/books"))
+  (GET "/book/:id" [id] (book-page "/book" id))
   (route/resources "/")
   (route/not-found "Sorry, there's nothing here."))
 
