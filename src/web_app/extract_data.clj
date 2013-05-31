@@ -1,9 +1,10 @@
 (ns web-app.extract_data
-  (:require [hickory.select :as s]
+  (:require [hickory.core :as hickory]
+            [hickory.select :as s]
             [clojure.string :as string]
-            [clojure.data.json :as json])
-  (:use hickory.core
-        [web-app.mongo :only [get-books insert-book delete-books]]))
+            [clojure.data.json :as json]
+            [clj-time.format :as time-format])
+  (:use [web-app.mongo :only [get-books insert-book delete-books]]))
 
 
 (def page-links 
@@ -13,7 +14,7 @@
 (def extracted-book-links 
   (for [link page-links]
     (let [content (s/select (s/child (s/class "bookTitle"))
-                            (as-hickory (parse (slurp link))))]
+                            (hickory/as-hickory (hickory/parse (slurp link))))]
       (map #(str "http://www.goodreads.com" %)
            (map :href
                 (map :attrs content))))))
@@ -23,8 +24,8 @@
 
 (defn prepare-json [body]
   (json/read-str
-    (clojure.string/replace
-      (clojure.string/replace body "@" "") "http://schema.org/" "")
+    (string/replace
+      (string/replace body "@" "") "http://schema.org/" "")
     :key-fn keyword))
 
 (defn get-book-data [json-text] 
@@ -46,15 +47,17 @@
   (let [content (s/select (s/child (s/class "desktop")
                                    (s/tag :head)
                                    (s/attr :itemprop #(= % "ratingValue")))
-                          (as-hickory (parse (slurp page-link))))]
+                          (hickory/as-hickory (hickory/parse (slurp page-link))))]
     (first (map :content (map :attrs content)))))
+
+(def custom-formatter (time-format/formatter "MMM dd, yy"))
 
 (defn extract-review [data page-link]
   (if-let [name (re-seq #"[A-Za-z]+" (apply str (second (split-at 35 (:author data)))))]
     (assoc {}
            :author (string/capitalize
                      (apply str name))
-           :publishDate (:publishDate data)
+           :publishDate (.toDate (time-format/parse custom-formatter (:publishDate data)))
            :description (:reviewBody data)
            :ratingValue (get-user-rating page-link))))
 
@@ -67,7 +70,7 @@
   (let [content (s/select (s/child (s/class "desktop")
                                    (s/tag :head)
                                    (s/attr :property #(= % "og:image")))
-                          (as-hickory (parse (slurp page-link))))]
+                          (hickory/as-hickory (hickory/parse (slurp page-link))))]
     (first (map :content (map :attrs content)))))
 
 (defn extract-book [data page-link]

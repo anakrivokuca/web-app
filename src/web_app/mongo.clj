@@ -43,6 +43,9 @@
 (defn insert-book [book]
   (insert-with-id :books book))
 
+(defn update-book [book new-book]
+  (update! :books book new-book))
+
 (defn delete-books []
   (if (not= (fetch-count :books) 0)
     (let [ids (for [book (get-books)]

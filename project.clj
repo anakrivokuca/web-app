@@ -10,5 +10,6 @@
                  [lib-noir "0.5.0"]
                  [amalloy/mongo-session "0.0.2"]
                  [hickory "0.4.0"]
-                 [org.clojure/data.json "0.2.1"]]
+                 [org.clojure/data.json "0.2.1"]
+                 [clj-time "0.5.1"]]
   :main web-app.core)

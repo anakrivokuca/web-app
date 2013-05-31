@@ -1,6 +1,12 @@
 (ns web-app.book
-  (:use [web-app.template :only [template-page]]
-        [web-app.mongo :only [get-book-by-id]]))
+  (:require [noir.session :as session]
+            [ring.util.response :as response]
+            [clj-time.core :as time-core]
+            [clj-time.format :as time-format])
+  (:use [hiccup.form :only [form-to label text-area submit-button]]
+        [web-app.template :only [template-page]]
+        [web-app.mongo :only [get-book-by-id update-book]]
+        [web-app.extract_data :only [custom-formatter]]))
 
 
 (defn roundedRating [book]
@@ -55,36 +61,80 @@
 
 (defn- review-list [book]
   [:div
-   (for [review (book :reviews)]
-     (identity [:table.review
+   (for [review (reverse (sort-by :publishDate (book :reviews)))]
+     (identity [:table {:style "width: 930px;"}
                 [:tr
                  [:th 
                   (review :author)
                   [:span {:class (str "rating-static rating-" (review :ratingValue) "0")}]]
-                 [:th (review :publishDate)]]
+                 [:th {:style "text-align: right;"} (time-format/unparse custom-formatter (new org.joda.time.DateTime (review :publishDate) (org.joda.time.DateTimeZone/forID "UTC")))]]
                 [:tr
                  [:td {:colspan "2"}
                   (review :description)]]]))])
 
-(defn add-review []
-  ;[:div "Rate this book:"]
-                     #_[:ul.star-rating
-                      [:li.current-rating {:style "width:0%;"} "Currently 0/5 Stars."]
-                      [:li [:a.one-star {:href "#" :title "1 star out of 5"} "1"]]
-                      [:li [:a.two-stars {:href "#" :title "2 stars out of 5"} "2"]]
-                      [:li [:a.three-stars {:href "#" :title "3 stars out of 5"} "3"]]
-                      [:li [:a.four-stars {:href "#" :title "4 stars out of 5"} "4"]]
-                      [:li [:a.five-stars {:href "#" :title "5 stars out of 5"} "5"]]])
+(defn calculate-star-percentage [new-rating]
+  (condp = new-rating
+    nil 0
+    0 0
+    1 20
+    2 40
+    3 60
+    4 80
+    100))
+
+(defn add-review [id user]
+  [:div.form
+   [:a {:name "addComment"}]
+   [:h4 "Add new review:"]
+  (form-to [:post "/addreview"]
+           [:table
+            [:tr
+             [:td "Rate this book: "]
+             [:td [:ul.star-rating
+                   (let [new-rating (session/get :rating)] 
+                     [:li.current-rating {:style (str "width:" (calculate-star-percentage new-rating) "%;")} 
+                      (str "Currently " new-rating "/5 Stars.")])
+                   [:li [:a.one-star {:href (str "/rate/" id "&1") :title "1 star out of 5"} "1"]]
+                   [:li [:a.two-stars {:href (str "/rate/" id "&2") :title "2 stars out of 5"} "2"]]
+                   [:li [:a.three-stars {:href (str "/rate/" id "&3") :title "3 stars out of 5"} "3"]]
+                   [:li [:a.four-stars {:href (str "/rate/" id "&4") :title "4 stars out of 5"} "4"]]
+                   [:li [:a.five-stars {:href (str "/rate/" id "&5") :title "5 stars out of 5"} "5"]]]]]
+            [:tr
+             [:td (label :comment "Comment: ")]
+             [:td (text-area :comment)]]
+            [:tr
+             [:td]
+             [:td (submit-button "Add")]]])])
+
+(defn do-add-review [comment new-rating]
+  (let [book (session/get :book) 
+        new-book (merge book 
+                        {:ratingCount (inc (book :ratingCount))}
+                        {:ratingValue (double (/ (+ (book :ratingValue) new-rating) 2))}
+                        {:reviews (conj (book :reviews)
+                                        (assoc {}
+                                               :author (session/get :user)
+                                               :publishDate (.toDate (time-core/now))
+                                               :description comment
+                                               :ratingValue new-rating))})]
+    (do
+      (update-book book new-book)
+      (session/remove! :id)
+      (session/remove! :rating)
+      (response/redirect (str "/book/" (book :_id))))))
 
 (defn- book-table [id]
   [:div.body
    (if-let [book (get-book-by-id id)]
-     (identity [:div.book
+     (do
+       (session/put! :book book)
+       (identity [:div.book
                 [:h2 (book :title)]
                 [:div.form
                  (book-details book)
                  (review-list book)
-                 (add-review)]])
+                 (if-let [user (session/get :user)] 
+                   (add-review id user))]]))
       [:p "Book with specified id does not exist in database."])])
 
 (defn book-page [uri id]

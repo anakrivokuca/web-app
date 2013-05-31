@@ -200,6 +200,10 @@ body {
 	padding: 20px 0 0;
 	width: 460px;
 }
+#body .form textarea {
+	width: 670px;
+	height: 200px;
+}
 #body .bookSmallImg {
 	max-width: 60px;
 }

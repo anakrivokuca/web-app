@@ -1,6 +1,7 @@
 (ns web-app.core
   (:require [compojure.route :as route]
-            [noir.session :as session])
+            [noir.session :as session]
+            [ring.util.response :as response])
   
   (:use [compojure.core :only [defroutes GET POST]]
         [ring.adapter.jetty :only [run-jetty]]
@@ -14,7 +15,7 @@
         [web-app.login :only [login-page do-login do-logout]]
         [web-app.users :only [users-page do-delete-user]]
         [web-app.books :only [books-page]]
-        [web-app.book :only [book-page]]
+        [web-app.book :only [book-page do-add-review]]
         [web-app.extract_data :only [process-data]]))
 
 
@@ -29,9 +30,14 @@
   (GET "/logout" [] (do-logout))
   (GET "/users" [] (users-page "/users"))
   (POST "/users/delete" [id]
-      (do-delete-user (Integer/parseInt id)))
+      (do-delete-user (Integer/valueOf id)))
   (GET "/books" [] (books-page "/books"))
   (GET "/book/:id" [id] (book-page "/book" id))
+  (GET "/rate/:id&:rating" [id rating] 
+       (session/put! :rating (Integer/valueOf rating))
+       (response/redirect (str "/book/" id "#addComment")))
+  (POST "/addreview" [comment]
+        (do-add-review comment (session/get :rating)))
   (route/resources "/")
   (route/not-found "Sorry, there's nothing here."))
 
