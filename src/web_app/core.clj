@@ -32,6 +32,8 @@
   (POST "/users/delete" [id]
       (do-delete-user (Integer/valueOf id)))
   (GET "/books" [] (books-page "/books"))
+  (POST "/books" [criteria] 
+        (books-page "/books" criteria))
   (GET "/book/:id" [id] (book-page "/book" id))
   (GET "/rate/:id&:rating" [id rating] 
        (session/put! :rating (Integer/valueOf rating))
@@ -55,5 +57,5 @@
   (println "\nWelcome to the web-app. Browse to http://localhost:8080 to get started!"))
 
 (defn -main [& args]
-  (process-data)
+  ;(process-data)
   (start-server))

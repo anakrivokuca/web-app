@@ -35,10 +35,22 @@
   (destroy! :users {:_id id}))
 
 (defn get-books []
-   (fetch :books))
+  (fetch :books))
 
 (defn get-book-by-id [id]
-   (fetch-one :books :where {:_id id}))
+  (fetch-one :books :where {:_id id}))
+
+(defn get-books-by-title [title]
+  (fetch :books
+         :where {:title title}))
+
+(defn get-books-by-author [author]
+  (fetch :books
+         :where {:author author}))
+
+(defn get-books-by-isbn [isbn]
+  (fetch :books
+         :where {:isbn isbn}))
 
 (defn insert-book [book]
   (insert-with-id :books book))
