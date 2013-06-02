@@ -3,7 +3,9 @@
   (:use [hiccup.core :only [html]]
         [hiccup.page :only [include-css]]))
 
-(defn- home-selected [user]
+(defn- home-selected 
+  "Display main menu when Home page is selected."
+  [user]
   [:ul
    [:li.selected
     [:a {:href "/"} "Home"]]
@@ -13,7 +15,9 @@
      [:li
       [:a {:href "/users"} "Users"]])])
 
-(defn- books-selected [user]
+(defn- books-selected 
+  "Display main menu when Books page is selected."
+  [user]
   [:ul
    [:li
     [:a {:href "/"} "Home"]]
@@ -23,7 +27,9 @@
      [:li
       [:a {:href "/users"} "Users"]])])
 
-(defn- users-selected [user]
+(defn- users-selected 
+  "Display main menu when Users page is selected."
+  [user]
   [:ul
    [:li
     [:a {:href "/"} "Home"]]
@@ -33,7 +39,9 @@
      [:li.selected
       [:a {:href "/users"} "Users"]])])
 
-(defn- register-login-selected [user]
+(defn- register-login-selected 
+  "Display main menu when pages from user menu are selected."
+  [user]
   [:ul
    [:li
     [:a {:href "/"} "Home"]]
@@ -43,14 +51,18 @@
      [:li
       [:a {:href "/users"} "Users"]])]) 
 
-(defn- menu [uri user]
+(defn- menu 
+  "Display main menu and mark selected page."
+  [uri user]
   (cond
     (= uri "/") (home-selected user)
     (= uri "/books") (books-selected user) 
     (= uri "/users") (users-selected user)
     (or (= uri "/register") (= uri "/login") (= uri "/book")) (register-login-selected user))) 
 
-(defn- user-logged-in [user]
+(defn- user-logged-in 
+  "Display user menu when user is logged in."
+  [user]
   [:ul
    [:li
     [:a (str "Logged in as " user)]]
@@ -58,6 +70,7 @@
     [:a {:href "/logout"} "Logout"]]])
 
 (def ^:private home-users-books-selected
+  "Display user menu when pages from main menu are selected."
   [:ul
    [:li
     [:a {:href "/register"} "Register"]]
@@ -65,6 +78,7 @@
     [:a {:href "/login"} "Login"]]])
 
 (def ^:private register-selected
+  "Display user menu when Register page is selected."
   [:ul
    [:li.selected
     [:a {:href "/register"} "Register"]]
@@ -72,20 +86,25 @@
     [:a {:href "/login"} "Login"]]])
 
 (def ^:private login-selected
+  "Display user menu when Login page is selected." 
   [:ul
    [:li
     [:a {:href "/register"} "Register"]]
    [:li.selected
     [:a {:href "/login"} "Login"]]])
 
-(defn- user-menu [uri user]
+(defn- user-menu 
+  "Display user menu and mark selected page."
+  [uri user]
   (cond
     user (user-logged-in user)
-    (or (= uri "/") (= uri "/users") (= uri "/books")) home-users-books-selected
+    (or (= uri "/") (= uri "/users") (= uri "/books") (= uri "/book")) home-users-books-selected
     (= uri "/register") register-selected
     (= uri "/login") login-selected))
 
-(defn template-page [title uri content]
+(defn template-page 
+  "Display header, main and user menu, body content and footer for all pages."
+  [title uri content]
   (html 
     [:head
      [:meta {:charset "UTF-8"}] 

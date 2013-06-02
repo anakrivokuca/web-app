@@ -6,16 +6,16 @@
 
 (set-connection! conn)
 
-;generate :_id
 (defn- next-seq [coll]
+  "Generate :_id." 
   (:seq (fetch-and-modify :sequences {:_id coll} {:$inc {:seq 1}}
-                             :return-new? true :upsert? true)))
+                          :return-new? true :upsert? true)))
 
 (defn- insert-with-id [coll values]
   (insert! coll (assoc values :_id (next-seq coll))))
 
 (defn get-users []
-   (fetch :users))
+  (fetch :users))
 
 (defn get-user-by-username [username] 
   (fetch-one :users :where {:user username}))

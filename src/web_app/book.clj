@@ -9,7 +9,9 @@
         [web-app.extract_data :only [custom-formatter]]))
 
 
-(defn roundedRating [book]
+(defn round-static-rating 
+  "Prepare static rating stars for dislaying 1/2 and 1 star ratings from all users."
+  [book]
   (let [rating (book :ratingValue)] 
     (cond
       (and (> rating 0) (< rating 0.25)) 0
@@ -24,14 +26,16 @@
       (and (> rating 4.25) (< rating 4.75)) 45
       :else 50)))
 
-(defn- book-details [book]
+(defn- book-details 
+  "Show book details."
+  [book]
   [:table
    [:tr
     [:td
      [:img {:src (book :image) :alt (book :title) :width "170"}]
      [:div {:align "center"}
       [:span "Book rating:"]
-      [:span {:class (str "rating-static rating-" (roundedRating book))}]]]
+      [:span {:class (str "rating-static rating-" (round-static-rating book))}]]]
     [:td
      [:table
       [:tr
@@ -59,7 +63,9 @@
        [:th "Awards: "]
        [:td (book :awards)]]]]]])
 
-(defn- review-list [book]
+(defn- review-list 
+  "List all book reviews."
+  [book]
   [:div
    (for [review (reverse (sort-by :publishDate (book :reviews)))]
      (identity [:table {:style "width: 930px;"}
@@ -72,7 +78,9 @@
                  [:td {:colspan "2"}
                   (review :description)]]]))])
 
-(defn calculate-star-percentage [new-rating]
+(defn- calculate-dynamic-star-percentage 
+  "Prepare dynamic rating stars for displaying user rating."
+  [new-rating]
   (condp = new-rating
     nil 0
     0 0
@@ -82,7 +90,22 @@
     4 80
     100))
 
-(defn add-review [id user]
+(defn- show-dynamic-rating-stars 
+  "Show user rating and allow user to rate a book."
+  [id]
+  [:ul.star-rating
+   (let [new-rating (session/get :rating)]
+     [:li.current-rating {:style (str "width:" (calculate-dynamic-star-percentage new-rating) "%;")}
+      (str "Currently " new-rating "/5 Stars.")])
+   [:li [:a.one-star {:href (str "/rate/" id "&1") :title "1 star out of 5"} "1"]]
+   [:li [:a.two-stars {:href (str "/rate/" id "&2") :title "2 stars out of 5"} "2"]]
+   [:li [:a.three-stars {:href (str "/rate/" id "&3") :title "3 stars out of 5"} "3"]]
+   [:li [:a.four-stars {:href (str "/rate/" id "&4") :title "4 stars out of 5"} "4"]]
+   [:li [:a.five-stars {:href (str "/rate/" id "&5") :title "5 stars out of 5"} "5"]]])
+
+(defn- add-review-box 
+  "Show dynamic rating stars and form for adding comments."
+  [id user]
   [:div.form
    [:a {:name "addComment"}]
    [:h4 "Add new review:"]
@@ -90,15 +113,7 @@
            [:table
             [:tr
              [:td "Rate this book: "]
-             [:td [:ul.star-rating
-                   (let [new-rating (session/get :rating)] 
-                     [:li.current-rating {:style (str "width:" (calculate-star-percentage new-rating) "%;")} 
-                      (str "Currently " new-rating "/5 Stars.")])
-                   [:li [:a.one-star {:href (str "/rate/" id "&1") :title "1 star out of 5"} "1"]]
-                   [:li [:a.two-stars {:href (str "/rate/" id "&2") :title "2 stars out of 5"} "2"]]
-                   [:li [:a.three-stars {:href (str "/rate/" id "&3") :title "3 stars out of 5"} "3"]]
-                   [:li [:a.four-stars {:href (str "/rate/" id "&4") :title "4 stars out of 5"} "4"]]
-                   [:li [:a.five-stars {:href (str "/rate/" id "&5") :title "5 stars out of 5"} "5"]]]]]
+             [:td (show-dynamic-rating-stars id)]]
             [:tr
              [:td (label :comment "Comment: ")]
              [:td (text-area :comment)]]
@@ -106,7 +121,9 @@
              [:td]
              [:td (submit-button "Add")]]])])
 
-(defn do-add-review [comment new-rating]
+(defn do-add-review 
+  "Calculate new rating count and value and save comment."
+  [comment new-rating]
   (let [book (session/get :book) 
         new-book (merge book 
                         {:ratingCount (inc (book :ratingCount))}
@@ -123,21 +140,26 @@
       (session/remove! :rating)
       (response/redirect (str "/book/" (book :_id))))))
 
-(defn- book-table [id]
+(defn- book-table 
+  "Display book details and book reviews.
+  If user is logged in, display form for adding reviews."
+  [id]
   [:div.body
    (if-let [book (get-book-by-id id)]
      (do
        (session/put! :book book)
        (identity [:div.book
-                [:h2 (book :title)]
-                [:div.form
-                 (book-details book)
-                 (review-list book)
-                 (if-let [user (session/get :user)] 
-                   (add-review id user))]]))
-      [:p "Book with specified id does not exist in database."])])
+                  [:h2 (book :title)]
+                  [:div.form
+                   (book-details book)
+                   (review-list book)
+                   (if-let [user (session/get :user)]
+                     (add-review-box id user))]]))
+     [:p "Book with specified id does not exist in database."])])
 
-(defn book-page [uri id]
+(defn book-page 
+  "Show Book page." 
+  [uri id]
   (template-page
     "Book page" 
     uri

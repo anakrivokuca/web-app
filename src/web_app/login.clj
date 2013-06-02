@@ -7,7 +7,9 @@
         [web-app.mongo :only [get-user-by-username]]))
 
 
-(defn- login-box [] 
+(defn- login-box 
+  "Show login form."
+  []  
   [:div.body
    [:h2 "Login"] 
    [:div.form
@@ -23,27 +25,28 @@
                [:td (password-field :pass)]]
               [:tr
                [:td]
-               [:td [:button {:type "submit"} "Log In"]]]
-              [:tr
-               [:td]
-               [:td
-                [:a {:href "/login/reset"} "Forgot your password?"]]]])
+               [:td [:button {:type "submit"} "Log In"]]]])
     [:p "If you are not registered, you can register " [:a {:href "/register"} "here" ] "."]]])
 
-(defn login-page [uri]
+(defn login-page 
+  "Show Login page."
+  [uri] 
   (template-page
     "Login page"
     uri
     (login-box)))
 
-(defn- verify-login-form 
+(defn- verify-login-form
+  "Verify all values entered in login form."
   [lower-user pass]
   (cond
     (nil? (get-user-by-username lower-user)) "Username does not exist."
     (not= pass (:pass (get-user-by-username lower-user))) "Password is not correct."
     :else true))
 
-(defn do-login [user pass]
+(defn do-login 
+  "If user credentials are correct, login."
+  [user pass]
   (let [lower-user (clojure.string/lower-case user)
         error-msg (verify-login-form lower-user pass)]
     (if-not (string? error-msg)

@@ -7,7 +7,9 @@
         [web-app.mongo :only [insert-user get-user-by-username get-user-by-email]]))
 
 
-(defn- register-box [] 
+(defn- register-box 
+  "Show register form."
+  []
   [:div.body
    [:h2 "Register"] 
    [:div.form
@@ -34,13 +36,16 @@
                [:td]
                [:td (submit-button "Register")]]])]])
 
-(defn register-page [uri]
+(defn register-page 
+  "Show Register page."
+  [uri]
   (template-page
     "Register page"
     uri
     (register-box)))
 
 (defn- verify-register-form 
+  "Verify all values entered in register form." 
   [name email lower-user pass repeat-pass]
   (cond
     (> 3 (.length name)) "Name must be at least 3 characters long"
@@ -55,7 +60,9 @@
     (not= pass repeat-pass) "Password and confirmed password are not equal."
     :else true))
 
-(defn do-register [name email user pass repeat-pass]
+(defn do-register 
+  "If all user data are entered properly, add user to database."
+  [name email user pass repeat-pass]
   (let [lower-user (clojure.string/lower-case user)
         error-msg (verify-register-form name email lower-user pass repeat-pass)]
     (if-not (string? error-msg)

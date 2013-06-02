@@ -57,5 +57,5 @@
   (println "\nWelcome to the web-app. Browse to http://localhost:8080 to get started!"))
 
 (defn -main [& args]
-  ;(process-data)
+  (process-data)
   (start-server))
