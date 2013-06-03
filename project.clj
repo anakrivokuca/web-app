@@ -1,4 +1,4 @@
-(defproject web-app "1.0.2"
+(defproject web-app "2.0.0"
   :description "My Clojure web application"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
