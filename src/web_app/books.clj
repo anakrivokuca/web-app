@@ -41,13 +41,36 @@
                         name))]
                    [:span {:class (str "rating-static rating-" (round-static-rating book))}]]]))]]])
 
+(defn- pagination
+  [criteria page last]
+  [:p 
+   (if-not (= 1 page)
+     [:span
+      [:a {:href (str "/books/" criteria "&1")} "<< First"] " "
+      (if-not (= 2 page)
+        [:a {:href (str "/books/" criteria "&" (- page 1))} "< Previous"])])
+   (if-not (= 1 last)
+     [:span " " [:b (str page " of " last " pages")] " "])
+   (if-not (= last page)
+     [:span
+      [:a {:href (str "/books/" criteria "&" (+ page 1))} "Next >"] " "
+      (if-not (= (- last 1) page)
+        [:a {:href (str "/books/" criteria "&" last)} "Last >>"])])])
+
 (defn- books-layout 
-  "Show book search form and list books."
-  [books-fn]
+  "Show book search form, pagination and list books."
+  [books-fn criteria page]
   [:div.body
    (book-search-box)
-   (if-let [books books-fn]
-     (list-books books)
+   (if-let [books (take 10 (drop (* 10 (- page 1)) books-fn))]
+     [:div
+      [:div {:style "float: right;"} 
+       (pagination criteria page
+                   (let [number-of-pages (/ (count books-fn) 10)]
+                     (if (ratio? number-of-pages)
+                       (int (inc (Math/floor (double number-of-pages))))
+                       number-of-pages)))]
+      (list-books books)]
      [:p "There are no books with specified search criteria."])]) 
 
 (defn- get-books-by-search-criteria 
@@ -61,5 +84,13 @@
 
 (defn books-page
   "Show Books page depending on search criteria." 
-  ([uri] (template-page "Books page" uri (books-layout (get-books))))
-  ([uri criteria] (template-page "Books page" uri (books-layout (get-books-by-search-criteria criteria)))))
+  ([uri] (template-page 
+           "Books page" 
+           uri 
+           (books-layout (get-books) "all" 1)))
+  ([uri criteria page] (template-page 
+                         "Books page" 
+                         uri 
+                         (books-layout (if (= criteria "all")
+                                         (get-books)
+                                         (get-books-by-search-criteria criteria)) criteria page))))
