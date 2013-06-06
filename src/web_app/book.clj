@@ -6,7 +6,7 @@
   (:use [hiccup.form :only [form-to label text-area submit-button]]
         [web-app.template :only [template-page]]
         [web-app.mongo :only [get-book-by-id update-book]]
-        [web-app.extract_data :only [custom-formatter]]
+        [web-app.extract-data :only [custom-formatter]]
         [web-app.recommendations :only [get-similar-books-pearson get-similar-books-euclidean]]))
 
 

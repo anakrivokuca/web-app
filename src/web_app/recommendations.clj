@@ -19,7 +19,7 @@
     (set (keys (prefs book-critic1))) 
     (set (keys (prefs book-critic2)))))
 
-(defn- sim-pearson 
+(defn sim-pearson 
   "Calculates the pearson correlation score based on shared ratings between the
    specified books."
   [prefs critic1 critic2]
@@ -58,7 +58,7 @@
                (>= value 0)) 
             (into (sort-book-scores m)  m))))
 
-(defn- sim-euclidean 
+(defn sim-euclidean 
   "Calculates the euclidean distance score based on shared ratings between the
    specified books."
   [prefs critic1 critic2]

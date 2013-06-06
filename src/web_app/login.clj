@@ -36,7 +36,7 @@
     uri
     (login-box)))
 
-(defn- verify-login-form
+(defn verify-login-form
   "Verify all values entered in login form."
   [lower-user pass]
   (cond

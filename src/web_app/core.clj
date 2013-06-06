@@ -16,7 +16,7 @@
         [web-app.users :only [users-page do-delete-user]]
         [web-app.books :only [books-page]]
         [web-app.book :only [book-page do-add-review]]
-        [web-app.extract_data :only [process-data]]
+        [web-app.extract-data :only [process-data]]
         [web-app.mongo :only [insert-inital-users]]))
 
 

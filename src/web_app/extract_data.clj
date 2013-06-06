@@ -1,4 +1,4 @@
-(ns web-app.extract_data
+(ns web-app.extract-data
   (:require [hickory.core :as hickory]
             [hickory.select :as s]
             [clojure.string :as string]
@@ -21,12 +21,12 @@
            (map :href
                 (map :attrs content))))))
 
-(defn get-json 
+(defn- get-json 
   "Extract microdata from specified link in json format."
   [link]
      (slurp (str "http://www.w3.org/2012/pyMicrodata/extract?format=json&uri=" link)))
 
-(defn prepare-json 
+(defn- prepare-json 
   "Prepare json for further data extraction."
   [body]
   (json/read-str
@@ -34,26 +34,26 @@
       (string/replace body "@" "") "http://schema.org/" "")
     :key-fn keyword))
 
-(defn get-book-data 
+(defn- get-book-data 
   "Get section from json that contains book data."
   [json-text] 
   (second (:list (:md:item json-text))))
 
-(defn get-review-data 
+(defn- get-review-data 
   "Get section from json that contains review data."
   [json-text link] 
   (if-let [review-data (:reviews (first (:list (:md:item json-text))))]
     review-data
     (first (remove #(= link (:id %)) (:graph json-text)))))
 
-(defn get-data 
+(defn- get-data 
   "Get review data section from json if extraction fails."
   [link]
   (if-let [data (get-review-data (prepare-json (get-json link)) link)]
     data
     (recur link)))
 
-(defn get-user-rating 
+(defn- get-user-rating 
   "Extract user rating from page-link."
   [page-link]
   (let [content (s/select (s/child (s/class "desktop")
@@ -65,7 +65,7 @@
 (def custom-formatter 
   (time-format/formatter "MMM dd, yy"))
 
-(defn extract-review
+(defn- extract-review
   "Extract review data."
   [data page-link]
   (if-let [name (rest (clojure.string/split (:author data) #"\-"))]
@@ -78,14 +78,14 @@
            :description (:reviewBody data)
            :ratingValue (get-user-rating page-link))))
 
-(defn prepare-review-data 
+(defn- prepare-review-data 
   "Prepare review data for database insert."
   [links]
   (if (or (vector? links) (seq? links)) 
     (pmap #(extract-review (get-data %) %) (flatten links))
     (extract-review (get-data links) links)))
 
-(defn get-image-link 
+(defn- get-image-link 
   "Extract book image from page-link."
   [page-link]
   (let [content (s/select (s/child (s/class "desktop")
@@ -94,7 +94,7 @@
                           (hickory/as-hickory (hickory/parse (slurp page-link))))]
     (first (map :content (map :attrs content)))))
 
-(defn extract-book 
+(defn- extract-book 
   "Extract book data."
   [data page-link]
   (let [reviews (remove nil? (map #(prepare-review-data (:url %)) (:reviews data)))]
@@ -113,17 +113,17 @@
            :ratingValue (double (/ (reduce + 0 (map #(Integer/valueOf (:ratingValue %)) reviews)) 
                                    (count reviews))))))
 
-(defn prepare-book-data 
+(defn- prepare-book-data 
   "Prepare book data for database insert."
   [] 
   (remove nil? (pmap #(if-let [data (get-book-data (prepare-json (get-json %)))]
                         (extract-book data %)) 
           (flatten extracted-book-links))))
 
-(defn insert-books []
+(defn- insert-books []
   "Delete all books from database and insert extracted data" 
   (delete-books)
-  (pmap insert-book (prepare-book-data)))
+  (pmap insert-book (prepare-book-data extracted-book-links)))
 
 (defn process-data 
   "Insert prepared data to database and show information about processed data."

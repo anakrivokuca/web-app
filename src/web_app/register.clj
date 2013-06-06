@@ -44,19 +44,19 @@
     uri
     (register-box)))
 
-(defn- verify-register-form 
+(defn verify-register-form 
   "Verify all values entered in register form." 
   [name email lower-user pass repeat-pass]
   (cond
-    (> 3 (.length name)) "Name must be at least 3 characters long"
-    (< 20 (.length name)) "Name must be maximum 20 characters long"
-    (not= name (first (re-seq #"[A-Za-z0-9_]+" name))) "Name must be alphanumeric"
+    (> 3 (.length name)) "Name must be at least 3 characters long."
+    (< 20 (.length name)) "Name must be maximum 20 characters long."
+    (not= name (first (re-seq #"[A-Za-z0-9_]+" name))) "Name must be alphanumeric."
     (not (nil? (get-user-by-email email))) "Email address is already taken."
     (not (nil? (get-user-by-username lower-user))) "Username is already taken."
-    (> 3 (.length lower-user)) "Username must be at least 3 characters long"
-    (< 14 (.length lower-user)) "Username must be maximum 14 characters long"
-    (not= lower-user (first (re-seq #"[A-Za-z0-9_]+" lower-user))) "Username must be alphanumeric"
-    (> 6 (.length pass)) "Password has to have more than 6 chars."
+    (> 3 (.length lower-user)) "Username must be at least 3 characters long."
+    (< 14 (.length lower-user)) "Username must be maximum 14 characters long."
+    (not= lower-user (first (re-seq #"[A-Za-z0-9_]+" lower-user))) "Username must be alphanumeric."
+    (> 6 (.length pass)) "Password must have at least 6 chars."
     (not= pass repeat-pass) "Password and confirmed password are not equal."
     :else true))
 
