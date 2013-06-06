@@ -16,7 +16,8 @@
         [web-app.users :only [users-page do-delete-user]]
         [web-app.books :only [books-page]]
         [web-app.book :only [book-page do-add-review]]
-        [web-app.extract_data :only [process-data]]))
+        [web-app.extract_data :only [process-data]]
+        [web-app.mongo :only [insert-inital-users]]))
 
 
 (defroutes handler
@@ -59,5 +60,6 @@
   (println "\nWelcome to the web-app. Browse to http://localhost:8080 to get started!"))
 
 (defn -main [& args]
+  (insert-inital-users) 
   (process-data)
   (start-server))

@@ -31,6 +31,13 @@
                    :user lower-user
                    :pass pass}))
 
+(defn insert-inital-users []
+  (if (empty? (get-users))
+    (do
+      (insert-user "admin" "admin@books.com" "admin" "admin")
+      (insert-user "Ana" "anakrivokuca@gmail.com" "anakrivokuca" "1234567")
+      (insert-user "Marko" "marko@gmail.com" "marko" "1234567"))))
+
 (defn delete-user [id]
   (destroy! :users {:_id id}))
 
