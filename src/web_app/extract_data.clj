@@ -68,10 +68,12 @@
 (defn extract-review
   "Extract review data."
   [data page-link]
-  (if-let [name (re-seq #"[A-Za-z]+" (apply str (second (split-at 35 (:author data)))))]
+  (if-let [name (rest (clojure.string/split (:author data) #"\-"))]
     (assoc {}
-           :author (string/capitalize
-                     (apply str name))
+           :authorId (first (clojure.string/split 
+                         (apply str (last 
+                                         (clojure.string/split (:author data)  #"\/"))) #"\-"))
+           :author (apply str (interpose " " (map clojure.string/capitalize name)))
            :publishDate (.toDate (time-format/parse custom-formatter (:publishDate data)))
            :description (:reviewBody data)
            :ratingValue (get-user-rating page-link))))
@@ -101,6 +103,7 @@
            :image (get-image-link page-link)
            :author (:name (:author data))
            :isbn (:isbn data)
+           :bookEdition (:bookEdition data) 
            :language (:inLanguage data)
            :bookFormatType (:bookFormatType data)
            :numberOfPages (:numberOfPages data)

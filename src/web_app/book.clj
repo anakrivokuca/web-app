@@ -6,7 +6,8 @@
   (:use [hiccup.form :only [form-to label text-area submit-button]]
         [web-app.template :only [template-page]]
         [web-app.mongo :only [get-book-by-id update-book]]
-        [web-app.extract_data :only [custom-formatter]]))
+        [web-app.extract_data :only [custom-formatter]]
+        [web-app.recommendations :only [get-similar-books-pearson get-similar-books-euclidean]]))
 
 
 (defn round-static-rating 
@@ -14,7 +15,7 @@
   [book]
   (let [rating (book :ratingValue)] 
     (cond
-      (and (> rating 0) (< rating 0.25)) 0
+      (and (> rating 0) (< rating 0.25)) 00
       (and (> rating 0.25) (< rating 0.75)) 5
       (and (> rating 0.75) (< rating 1.25)) 10
       (and (> rating 1.25) (< rating 1.75)) 15
@@ -40,7 +41,9 @@
      [:table
       [:tr
        [:th "Title: "]
-       [:td (book :title)]]
+       [:td (str (book :title) 
+                 (if-let [book-edition (book :bookEdition)] 
+                   (str ", " book-edition)))]]
       [:tr 
        [:th "Author: "]
        [:td (let [name (book :author)]
@@ -63,10 +66,35 @@
        [:th "Awards: "]
        [:td (book :awards)]]]]]])
 
+(defn- similar-books-list
+  "Show similar books according to user ratings."
+  [id]
+  (let [similar-books (take 15 (get-similar-books-pearson id))]
+    (if (not= 0 (count similar-books)) 
+      [:div
+     [:h4 "People who liked this book also liked:"]
+     (for [book-id (keys similar-books)] 
+       (let [book (get-book-by-id book-id)] 
+         [:a {:href (str "/book/" (book :_id))}
+                    [:img.bookSmallImg {:src (book :image) :alt (book :title)}]]))])))
+
+#_(defn- similar-books-list-euclidean
+  "Show similar books according to user ratings."
+  [id]
+  (let [similar-books (take 15 (get-similar-books-euclidean id))]
+    (if (not= 0 (count similar-books)) 
+      [:div
+     [:h4 "People who liked this book also liked (Euclidean):"]
+     (for [book-id (keys similar-books)] 
+       (let [book (get-book-by-id book-id)] 
+         [:a {:href (str "/book/" (book :_id))}
+                    [:img.bookSmallImg {:src (book :image) :alt (book :title)}]]))])))
+
 (defn- review-list 
   "List all book reviews."
   [book]
   [:div
+   [:h4 "Reviews:"] 
    (for [review (reverse (sort-by :publishDate (book :reviews)))]
      (identity [:table {:style "width: 930px;"}
                 [:tr
@@ -152,6 +180,8 @@
                   [:h2 (book :title)]
                   [:div.form
                    (book-details book)
+                   (similar-books-list id)
+                   ;(similar-books-list-euclidean id)
                    (review-list book)
                    (if-let [user (session/get :user)]
                      (add-review-box id user))]]))
