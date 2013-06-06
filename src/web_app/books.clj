@@ -43,35 +43,37 @@
 
 (defn- pagination
   [criteria page last]
-  [:p 
-   (if-not (= 1 page)
-     [:span
-      [:a {:href (str "/books/" criteria "&1")} "<< First"] " "
-      (if-not (= 2 page)
-        [:a {:href (str "/books/" criteria "&" (- page 1))} "< Previous"])])
-   (if-not (= 1 last)
-     [:span " " [:b (str page " of " last " pages")] " "])
-   (if-not (= last page)
-     [:span
-      [:a {:href (str "/books/" criteria "&" (+ page 1))} "Next >"] " "
-      (if-not (= (- last 1) page)
-        [:a {:href (str "/books/" criteria "&" last)} "Last >>"])])])
+  (if-not (= 0 last) 
+    [:p
+     (if-not (= 1 page)
+       [:span
+        [:a {:href (str "/books/" criteria "&1")} "<< First"] " "
+        (if-not (= 2 page)
+          [:a {:href (str "/books/" criteria "&" (- page 1))} "< Previous"])])
+     (if-not (= 1 last)
+       [:span " " [:b (str page " of " last " pages")] " "])
+     (if-not (= last page)
+       [:span
+        [:a {:href (str "/books/" criteria "&" (+ page 1))} "Next >"] " "
+        (if-not (= (- last 1) page)
+          [:a {:href (str "/books/" criteria "&" last)} "Last >>"])])]))
 
 (defn- books-layout 
   "Show book search form, pagination and list books."
   [books-fn criteria page]
   [:div.body
    (book-search-box)
-   (if-let [books (take 10 (drop (* 10 (- page 1)) books-fn))]
-     [:div
-      [:div {:style "float: right;"} 
-       (pagination criteria page
-                   (let [number-of-pages (/ (count books-fn) 10)]
-                     (if (ratio? number-of-pages)
-                       (int (inc (Math/floor (double number-of-pages))))
-                       number-of-pages)))]
-      (list-books books)]
-     [:p "There are no books with specified search criteria."])]) 
+   (let [books (take 10 (drop (* 10 (- page 1)) books-fn))]
+     (if-not (empty? books) 
+       [:div
+        [:div {:style "float: right;"}
+         (pagination criteria page
+                     (let [number-of-pages (/ (count books-fn) 10)]
+                       (if (ratio? number-of-pages)
+                         (int (inc (Math/floor (double number-of-pages))))
+                         number-of-pages)))]
+        (list-books books)]
+       [:p "There are no books with specified search criteria."]))]) 
 
 (defn- get-books-by-search-criteria 
   "Find books by book title, author or ISBN."
