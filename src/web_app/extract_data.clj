@@ -70,13 +70,13 @@
   [data page-link]
   (if-let [name (rest (clojure.string/split (:author data) #"\-"))]
     (assoc {}
-           :authorId (first (clojure.string/split 
+           :authorId (str "gr-" (first (clojure.string/split 
                          (apply str (last 
-                                         (clojure.string/split (:author data)  #"\/"))) #"\-"))
+                                         (clojure.string/split (:author data)  #"\/"))) #"\-")))
            :author (apply str (interpose " " (map clojure.string/capitalize name)))
            :publishDate (.toDate (time-format/parse custom-formatter (:publishDate data)))
            :description (:reviewBody data)
-           :ratingValue (get-user-rating page-link))))
+           :ratingValue (Integer/parseInt (get-user-rating page-link)))))
 
 (defn- prepare-review-data 
   "Prepare review data for database insert."
@@ -94,42 +94,43 @@
                           (hickory/as-hickory (hickory/parse (slurp page-link))))]
     (first (map :content (map :attrs content)))))
 
+(def active-agents (atom 0))
+
 (defn- extract-book 
-  "Extract book data."
-  [data page-link]
-  (let [reviews (remove nil? (map #(prepare-review-data (:url %)) (:reviews data)))]
-    (assoc {}
-           :title (apply str (interpose " " (re-seq #"[A-Za-z0-9_]+" (:name data))))
-           :image (get-image-link page-link)
-           :author (:name (:author data))
-           :isbn (:isbn data)
-           :bookEdition (:bookEdition data) 
-           :language (:inLanguage data)
-           :bookFormatType (:bookFormatType data)
-           :numberOfPages (:numberOfPages data)
-           :awards (:awards data)
-           :reviews reviews
-           :ratingCount (count reviews)
-           :ratingValue (double (/ (reduce + 0 (map #(Integer/valueOf (:ratingValue %)) reviews)) 
-                                   (count reviews))))))
+  "Extract book data and insert to database."
+  [page-link]
+  (if-let [data (get-book-data (prepare-json (get-json page-link)))]
+    (let [reviews (remove nil? (map #(prepare-review-data (:url %)) (:reviews data))) 
+          book (assoc {}
+                      :title (apply str (interpose " " (re-seq #"[A-Za-z0-9_]+" (:name data))))
+                      :image (get-image-link page-link)
+                      :author (:name (:author data))
+                      :isbn (:isbn data)
+                      :bookEdition (:bookEdition data)
+                      :language (:inLanguage data)
+                      :bookFormatType (:bookFormatType data)
+                      :numberOfPages (:numberOfPages data)
+                      :awards (:awards data)
+                      :reviews reviews
+                      :ratingCount (count reviews)
+                      :ratingValue (double (/ (reduce + 0 (map #(:ratingValue %) reviews))
+                                              (count reviews))))]
+      (when data
+        (insert-book book)
+        (swap! active-agents dec)))))
 
-(defn- prepare-book-data 
-  "Prepare book data for database insert."
-  [] 
-  (remove nil? (pmap #(if-let [data (get-book-data (prepare-json (get-json %)))]
-                        (extract-book data %)) 
-          (flatten extracted-book-links))))
-
-(defn- insert-books []
-  "Delete all books from database and insert extracted data" 
+(defn- start-book-insert 
+  "Delete all books from database and send agents  
+   for inserting extracted book data."
+  []
   (delete-books)
-  (pmap insert-book (prepare-book-data)))
+  (map #(let [agent (agent %)]
+          (send agent extract-book)
+          (swap! active-agents inc))
+       (flatten extracted-book-links)))
 
 (defn process-data 
-  "Insert prepared data to database and show information about processed data."
+  "Start processing the data."
   []
   (println "Processing data started!\n")
-  (time (doall (insert-books)))
-  (println (str (count (get-books)) " books imported!\n"))
-  (println (str (reduce + 0 (for [book (get-books)] (count (:reviews book)))) " reviews imported!\n"))
-  (println "Processing data finished!\n"))
+  (doall (start-book-insert)))

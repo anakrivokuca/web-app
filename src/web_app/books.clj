@@ -73,7 +73,7 @@
                          (int (inc (Math/floor (double number-of-pages))))
                          number-of-pages)))]
         (list-books books)]
-       (if (== criteria "all")
+       (if (= criteria "all")
          [:p "There are no books in the database."]
          [:p "There are no books with specified search criteria."])))]) 
 

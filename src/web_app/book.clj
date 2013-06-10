@@ -159,7 +159,7 @@
                         {:reviews (conj (book :reviews)
                                         (assoc {}
                                                :author user
-                                               :authorId (:_id (get-user-by-username user))
+                                               :authorId (str (:_id (get-user-by-username user)))
                                                :publishDate (.toDate (time-core/now))
                                                :description comment
                                                :ratingValue new-rating))})]

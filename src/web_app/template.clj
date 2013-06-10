@@ -116,7 +116,7 @@
        [:div#header
         [:div
          [:a.logo
-          [:img {:src "/images/clojure_quick_introduction.png" :alt "Books"}]]
+          [:img {:src "/images/logo.jpg" :alt "Books"}]]
          (menu uri user)]]
        
        [:div#body

@@ -8,7 +8,7 @@
                    (for [review (:reviews book)]
                      (conj []
                            (:authorId review)
-                           (Integer/parseInt (:ratingValue review))))))]
+                           (:ratingValue review)))))]
     (zipmap (map first sq)
             (flatten (map #(map (fn [s] (into {} s)) (map set (rest %))) sq)))))
 
