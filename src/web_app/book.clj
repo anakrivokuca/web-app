@@ -5,15 +5,15 @@
             [clj-time.format :as time-format])
   (:use [hiccup.form :only [form-to label text-area submit-button]]
         [web-app.template :only [template-page]]
-        [web-app.mongo :only [get-book-by-id update-book]]
+        [web-app.mongo :only [get-book-by-id update-book get-user-by-username]]
         [web-app.extract-data :only [custom-formatter]]
         [web-app.recommendations :only [get-similar-books-pearson get-similar-books-euclidean]]))
 
-
+(defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))
 (defn round-static-rating 
   "Prepare static rating stars for dislaying 1/2 and 1 star ratings from all users."
   [book]
-  (let [rating (book :ratingValue)] 
+  (if-let [rating (dbg (:ratingValue book))] 
     (cond
       (and (> rating 0) (< rating 0.25)) 00
       (and (> rating 0.25) (< rating 0.75)) 5
@@ -152,13 +152,15 @@
 (defn do-add-review 
   "Calculate new rating count and value and save comment."
   [comment new-rating]
-  (let [book (session/get :book) 
+  (let [book (session/get :book)
+        user (session/get :user)
         new-book (merge book 
                         {:ratingCount (inc (book :ratingCount))}
                         {:ratingValue (double (/ (+ (book :ratingValue) new-rating) 2))}
                         {:reviews (conj (book :reviews)
                                         (assoc {}
-                                               :author (session/get :user)
+                                               :author user
+                                               :authorId (:_id (get-user-by-username user))
                                                :publishDate (.toDate (time-core/now))
                                                :description comment
                                                :ratingValue new-rating))})]

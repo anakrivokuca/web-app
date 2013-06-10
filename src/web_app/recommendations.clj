@@ -4,12 +4,12 @@
 (def ^:private book-critics
   "Gets all books ids with their user ratings."
   (let [sq (for [book (get-books)]
-            (conj [] (:_id book)
-                  (for [review (:reviews book)]
-                    (conj []
-                          (:authorId review)
-                          (Integer/parseInt (:ratingValue review))))))]
-    (zipmap (map first sq) 
+             (conj [] (:_id book)
+                   (for [review (:reviews book)]
+                     (conj []
+                           (:authorId review)
+                           (Integer/parseInt (:ratingValue review))))))]
+    (zipmap (map first sq)
             (flatten (map #(map (fn [s] (into {} s)) (map set (rest %))) sq)))))
 
 (defn- get-shared-prefs 

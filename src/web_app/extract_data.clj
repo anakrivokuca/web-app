@@ -123,7 +123,7 @@
 (defn- insert-books []
   "Delete all books from database and insert extracted data" 
   (delete-books)
-  (pmap insert-book (prepare-book-data extracted-book-links)))
+  (pmap insert-book (prepare-book-data)))
 
 (defn process-data 
   "Insert prepared data to database and show information about processed data."

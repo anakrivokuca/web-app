@@ -73,7 +73,9 @@
                          (int (inc (Math/floor (double number-of-pages))))
                          number-of-pages)))]
         (list-books books)]
-       [:p "There are no books with specified search criteria."]))]) 
+       (if (== criteria "all")
+         [:p "There are no books in the database."]
+         [:p "There are no books with specified search criteria."])))]) 
 
 (defn- get-books-by-search-criteria 
   "Find books by book title, author or ISBN."
