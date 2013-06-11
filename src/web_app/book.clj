@@ -12,8 +12,8 @@
 (defn round-static-rating 
   "Prepare static rating stars for dislaying 1/2 and 1 star ratings from all users."
   [book]
-  (if-let [rating (dbg (:ratingValue book))] 
-    (dbg (cond
+  (if-let [rating (:ratingValue book)] 
+    (cond
       (and (>= rating 0.0) (< rating 0.25)) "00"
       (and (>= rating 0.25) (< rating 0.75)) "5"
       (and (>= rating 0.75) (< rating 1.25)) "10"
@@ -24,7 +24,7 @@
       (and (>= rating 3.25) (< rating 3.75)) "35"
       (and (>= rating 3.75) (< rating 4.25)) "40"
       (and (>= rating 4.25) (< rating 4.75)) "45"
-      :else "50"))))
+      :else "50")))
 
 (defn- book-details 
   "Show book details."
