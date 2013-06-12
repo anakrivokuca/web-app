@@ -136,6 +136,7 @@
   [:div.form
    [:a {:name "addComment"}]
    [:h4 "Add new review:"]
+   [:div.error (session/flash-get :error)]
   (form-to [:post "/addreview"]
            [:table
             [:tr
@@ -143,7 +144,7 @@
              [:td (show-dynamic-rating-stars id)]]
             [:tr
              [:td (label :comment "Comment: ")]
-             [:td (text-area :comment)]]
+             [:td (text-area :comment (session/flash-get :comment))]]
             [:tr
              [:td]
              [:td (submit-button "Add")]]])])
@@ -154,8 +155,9 @@
   (let [book (session/get :book)
         user (session/get :user)
         new-book (merge book 
-                        {:ratingCount (inc (book :ratingCount))}
-                        {:ratingValue (double (/ (+ (book :ratingValue) new-rating) 2))}
+                        (when-not (or (nil? new-rating) (zero? new-rating))
+                          {:ratingCount (inc (book :ratingCount))}
+                          {:ratingValue (double (/ (+ (book :ratingValue) new-rating) 2))})
                         {:reviews (conj (book :reviews)
                                         (assoc {}
                                                :author user
@@ -163,11 +165,16 @@
                                                :publishDate (.toDate (time-core/now))
                                                :description comment
                                                :ratingValue new-rating))})]
-    (do
-      (update-book book new-book)
-      (session/remove! :id)
-      (session/remove! :rating)
-      (response/redirect (str "/book/" (book :_id))))))
+    (if-not (or (nil? new-rating) (zero? new-rating))
+      (do
+        (update-book book new-book)
+        (session/remove! :id)
+        (session/remove! :rating)
+        (response/redirect (str "/book/" (book :_id))))
+      (do
+        (session/flash-put! :error "Book must be rated!")
+        (session/flash-put! :comment comment)
+        (response/redirect (str "/book/" (book :_id) "#addComment"))))))
 
 (defn- book-table 
   "Display book details and book reviews.

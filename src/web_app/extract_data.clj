@@ -10,7 +10,7 @@
 (def page-links 
   "Prepare page links for links extraction."
   (for [i (range 1 2)]
-    (str "http://www.goodreads.com/shelf/show/it?page=" i)))
+    (str "http://www.goodreads.com/shelf/show/programming?page=" i)))
 
 (def extracted-book-links
   "Prepare links for data extraction."
@@ -100,22 +100,23 @@
   "Extract book data and insert to database."
   [page-link]
   (if-let [data (get-book-data (prepare-json (get-json page-link)))]
-    (let [reviews (remove nil? (map #(prepare-review-data (:url %)) (:reviews data))) 
-          book (assoc {}
-                      :title (apply str (interpose " " (re-seq #"[A-Za-z0-9_]+" (:name data))))
-                      :image (get-image-link page-link)
-                      :author (:name (:author data))
-                      :isbn (:isbn data)
-                      :bookEdition (:bookEdition data)
-                      :language (:inLanguage data)
-                      :bookFormatType (:bookFormatType data)
-                      :numberOfPages (:numberOfPages data)
-                      :awards (:awards data)
-                      :reviews reviews
-                      :ratingCount (count reviews)
-                      :ratingValue (double (/ (reduce + 0 (map #(:ratingValue %) reviews))
-                                              (count reviews))))]
-      (when data
+    (when data
+      (let [reviews (remove #(or (nil? %) (zero? (:ratingValue %)))
+                            (map #(prepare-review-data (:url %)) (:reviews data)))
+            book (assoc {}
+                        :title (string/trim (:name data))
+                        :image (get-image-link page-link)
+                        :author (:name (:author data))
+                        :isbn (:isbn data)
+                        :bookEdition (:bookEdition data)
+                        :language (:inLanguage data)
+                        :bookFormatType (:bookFormatType data)
+                        :numberOfPages (:numberOfPages data)
+                        :awards (:awards data)
+                        :reviews reviews
+                        :ratingCount (count reviews)
+                        :ratingValue (double (/ (reduce + 0 (map #(:ratingValue %) reviews))
+                                                (count reviews))))]
         (insert-book book)
         (swap! active-agents dec)))))
 
