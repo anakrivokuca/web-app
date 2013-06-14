@@ -16,16 +16,13 @@
 (defn- get-shared-prefs 
   "Gets shared user ratings between the specified books."
   [prefs book-critic1 book-critic2]
-  (clojure.set/intersection 
-    (set (keys (prefs book-critic1))) 
-    (set (keys (prefs book-critic2)))))
+  (filter (prefs book-critic1) (keys (prefs book-critic2))))
 
 (defn sim-pearson 
   "Calculates the pearson correlation score based on shared ratings between the
    specified books."
-  [critic1 critic2]
-  (let [prefs (book-critics)
-        shared (get-shared-prefs prefs critic1 critic2)
+  [prefs critic1 critic2]
+  (let [shared (get-shared-prefs prefs critic1 critic2)
         length (float (count shared))]
     (if (== 0 length)
       -1
@@ -51,10 +48,10 @@
 (defn get-similar-books-pearson 
   "Gets sorted list of books and their similarity scores calculated with Pearson."
   [book-id]
-  (let [books-ids (keys (book-critics))
-        similarity-scores (for [book-id2 books-ids]
-                            (if-not (= book-id2 book-id)
-                              (sim-pearson book-id book-id2)))
+  (let [prefs (book-critics)
+        books-ids (keys prefs)
+        similarity-scores (pmap #(if-not (= % book-id)
+                                   (sim-pearson prefs book-id %)) books-ids)
         m (zipmap books-ids similarity-scores)]
     (filter #(if-let [value (val %)]
                (>= value 0)) 
@@ -63,9 +60,8 @@
 (defn sim-euclidean 
   "Calculates the euclidean distance score based on shared ratings between the
    specified books."
-  [critic1 critic2]
-  (let [prefs (book-critics)
-        shared (get-shared-prefs prefs critic1 critic2)
+  [prefs critic1 critic2]
+  (let [shared (get-shared-prefs prefs critic1 critic2)
         denominator (reduce #(+ %1 (Math/pow (- (get-in prefs [critic1 %2])
                                                 (get-in prefs [critic2 %2])) 2))
                             0 shared)]
@@ -76,10 +72,10 @@
 (defn get-similar-books-euclidean 
   "Gets sorted list of books and their similarity scores calculated with Euclidean."
   [book-id]
-  (let [books-ids (keys (book-critics))
-        similarity-scores (for [book-id2 books-ids]
-                            (if-not (= book-id2 book-id)
-                              (sim-euclidean book-id book-id2)))
+  (let [prefs (book-critics)
+        books-ids (keys prefs)
+        similarity-scores (pmap #(if-not (= % book-id)
+                                   (sim-euclidean prefs book-id %)) books-ids)
         m (zipmap books-ids similarity-scores)]
     (filter #(if-let [value (val %)]
                (>= value 0.5))
