@@ -9,17 +9,18 @@
 
 (def page-links 
   "Prepare page links for links extraction."
-  (for [i (range 1 2)]
+  (for [i (range 1 125)]
     (str "http://www.goodreads.com/shelf/show/programming?page=" i)))
 
 (def extracted-book-links
-  "Prepare links for data extraction."
-  (for [link page-links]
-    (let [content (s/select (s/child (s/class "bookTitle"))
-                            (hickory/as-hickory (hickory/parse (slurp link))))]
-      (map #(str "http://www.goodreads.com" %)
-           (map :href
-                (map :attrs content))))))
+  "Prepare book links for data extraction."
+  (atom (pmap (fn [link]
+          (let [content (s/select (s/child (s/class "bookTitle"))
+                                  (hickory/as-hickory (hickory/parse (slurp link))))]
+            (map #(str "http://www.goodreads.com" %)
+                 (map :href
+                      (map :attrs content)))))
+        page-links)))
 
 (defn- get-json 
   "Extract microdata from specified link in json format."
@@ -97,7 +98,7 @@
 (def active-agents (atom 0))
 
 (defn- extract-book 
-  "Extract book data and insert to database."
+  "Extract book data, insert to database and decrease number of active agents."
   [page-link]
   (if-let [data (get-book-data (prepare-json (get-json page-link)))]
     (when data
@@ -120,18 +121,30 @@
         (insert-book book)
         (swap! active-agents dec)))))
 
-(defn- start-book-insert 
-  "Delete all books from database and send agents  
-   for inserting extracted book data."
+(defn- send-agents 
+  "Send agents for inserting extracted book data and increase
+   number of active agents."
   []
-  (delete-books)
-  (map #(let [agent (agent %)]
+  (dorun (map #(let [agent (agent %)]
           (send agent extract-book)
           (swap! active-agents inc))
-       (flatten extracted-book-links)))
+       (first @extracted-book-links))))
+
+(defn active-agents-watcher
+  "When number of active agents is 50, remove book links for 
+   inserted data and start sending a new group of agents." 
+  [key agents old-value new-value]
+  (if (= 50 new-value)
+    (do
+      (swap! extracted-book-links #(drop 1 %))
+      (if-not (empty? @extracted-book-links) 
+        (send-agents)))))
+
+(add-watch active-agents :key active-agents-watcher)
 
 (defn process-data 
-  "Start processing the data."
+  "Delete all books from database and start processing the data."
   []
   (println "Processing data started!\n")
-  (doall (start-book-insert)))
+  (delete-books)
+  (send-agents))
