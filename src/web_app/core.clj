@@ -5,7 +5,7 @@
   
   (:use [compojure.core :only [defroutes GET POST DELETE]]
         [ring.adapter.jetty :only [run-jetty]]
-        web-app.middleware
+        ;web-app.middleware
         [ring.middleware.reload :only [wrap-reload]]
         [ring.middleware.stacktrace :only [wrap-stacktrace]]
         [ring.middleware.params :only [wrap-params]]
@@ -48,7 +48,7 @@
 
 (def app
   (-> #'handler
-    (wrap-request-logging)
+    ;(wrap-request-logging)
     (wrap-reload)
     (wrap-params)
     (session/wrap-noir-flash)
