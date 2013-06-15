@@ -3,7 +3,7 @@
             [noir.session :as session]
             [ring.util.response :as response])
   
-  (:use [compojure.core :only [defroutes GET POST]]
+  (:use [compojure.core :only [defroutes GET POST DELETE]]
         [ring.adapter.jetty :only [run-jetty]]
         web-app.middleware
         [ring.middleware.reload :only [wrap-reload]]
@@ -30,7 +30,7 @@
         (do-login user pass))
   (GET "/logout" [] (do-logout))
   (GET "/users" [] (users-page "/users"))
-  (POST "/users/delete" [id]
+  (DELETE "/users" [id]
       (do-delete-user (Integer/valueOf id)))
   (GET "/books" [] (books-page "/books"))
   (POST "/books" [criteria] 

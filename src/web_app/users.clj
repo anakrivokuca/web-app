@@ -24,7 +24,7 @@
                   [:td (i :user)]
                   [:td (i :email)]
                   [:td 
-                   (form-to [:post "/users/delete"]
+                   (form-to [:delete "/users"]
                             (hidden-field :id (i :_id))
                             (submit-button "Delete"))]]))]]])
 
