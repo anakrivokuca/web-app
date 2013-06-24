@@ -6,7 +6,10 @@
   (:import com.mongodb.WriteResult))
 
 (deftest insert-user-test
-  (is (= 5 (count (insert-user "my-name" "myemail@email.com" "my-username" "mypsswrd")))))
+  (is (= 5 (count (insert-user "my-name"
+                               "myemail@email.com"
+                               "my-username"
+                               "mypsswrd")))))
 
 (deftest verify-register-form-test
   (let [name "name"
@@ -19,32 +22,32 @@
         shpass "pass"
         email "test@test.com"]
     (is (= true (verify-register-form name email uname pass pass)))
-    (is (= "Name must be at least 3 characters long." 
+    (is (= "Name must be at least 3 characters long."
            (verify-register-form shname email uname pass pass)))
-    (is (= "Name must be maximum 20 characters long." 
+    (is (= "Name must be maximum 20 characters long."
            (verify-register-form lngname email uname pass pass)))
-    (is (= "Name must be alphanumeric." 
+    (is (= "Name must be alphanumeric."
            (verify-register-form bname email uname pass pass)))
-    (is (= "Email address is already taken." 
+    (is (= "Email address is already taken."
            (verify-register-form name "myemail@email.com" uname pass pass)))
-    (is (= "Username is already taken." 
+    (is (= "Username is already taken."
            (verify-register-form name email "my-username" pass pass)))
-    (is (= "Username must be at least 3 characters long." 
+    (is (= "Username must be at least 3 characters long."
            (verify-register-form name email shname pass pass)))
-    (is (= "Username must be maximum 14 characters long." 
+    (is (= "Username must be maximum 14 characters long."
            (verify-register-form name email lnguname pass pass)))
-    (is (= "Username must be alphanumeric." 
+    (is (= "Username must be alphanumeric."
            (verify-register-form name email bname pass pass)))
-    (is (= "Password must have at least 6 chars." 
+    (is (= "Password must have at least 6 chars."
            (verify-register-form name email uname shpass shpass)))
-    (is (= "Password and confirmed password are not equal." 
+    (is (= "Password and confirmed password are not equal."
            (verify-register-form name email uname pass "differentpass")))))
 
 (deftest verify-login-form-test
     (is (= true (verify-login-form "my-username" "mypsswrd")))
-    (is (= "Username does not exist." 
+    (is (= "Username does not exist."
            (verify-login-form "uname" "mypsswrd")))
-    (is (= "Password is not correct." 
+    (is (= "Password is not correct."
            (verify-login-form "my-username" "pass"))))
 
 (deftest delete-user-test

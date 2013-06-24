@@ -1,17 +1,18 @@
 (ns web-app.register
   (:require [noir.session :as session]
             [ring.util.response :as response])
-  
-  (:use [hiccup.form :only [form-to label text-field email-field password-field submit-button]]
+  (:use [hiccup.form :only [form-to label text-field email-field
+                            password-field submit-button]]
         [web-app.template :only [template-page]]
-        [web-app.mongo :only [insert-user get-user-by-username get-user-by-email]]))
+        [web-app.mongo :only [insert-user get-user-by-username
+                              get-user-by-email]]))
 
 
-(defn- register-box 
+(defn- register-box
   "Show register form."
   []
   [:div.body
-   [:h2 "Register"] 
+   [:h2 "Register"]
    [:div.form
     [:h4 "Fill in the form to register:"]
     [:div.error (session/flash-get :error)]
@@ -36,7 +37,7 @@
                [:td]
                [:td (submit-button "Register")]]])]])
 
-(defn register-page 
+(defn register-page
   "Show Register page."
   [uri]
   (template-page
@@ -44,27 +45,31 @@
     uri
     (register-box)))
 
-(defn verify-register-form 
-  "Verify all values entered in register form." 
+(defn verify-register-form
+  "Verify all values entered in register form."
   [name email lower-user pass repeat-pass]
   (cond
-    (> 3 (.length name)) "Name must be at least 3 characters long."
-    (< 20 (.length name)) "Name must be maximum 20 characters long."
-    (not= name (first (re-seq #"[A-Za-z0-9_]+" name))) "Name must be alphanumeric."
-    (not (nil? (get-user-by-email email))) "Email address is already taken."
-    (not (nil? (get-user-by-username lower-user))) "Username is already taken."
-    (> 3 (.length lower-user)) "Username must be at least 3 characters long."
-    (< 14 (.length lower-user)) "Username must be maximum 14 characters long."
-    (not= lower-user (first (re-seq #"[A-Za-z0-9_]+" lower-user))) "Username must be alphanumeric."
-    (> 6 (.length pass)) "Password must have at least 6 chars."
-    (not= pass repeat-pass) "Password and confirmed password are not equal."
-    :else true))
+   (> 3 (.length name)) "Name must be at least 3 characters long."
+   (< 20 (.length name)) "Name must be maximum 20 characters long."
+   (not= name (first (re-seq #"[A-Za-z0-9_]+" name)))
+   "Name must be alphanumeric."
+   (not (nil? (get-user-by-email email))) "Email address is already taken."
+   (not (nil? (get-user-by-username lower-user))) "Username is already taken."
+   (> 3 (.length lower-user)) "Username must be at least 3 characters long."
+   (< 14 (.length lower-user)) "Username must be maximum 14 characters long."
+   (not= lower-user (first (re-seq #"[A-Za-z0-9_]+" lower-user)))
+   "Username must be alphanumeric."
+   (> 6 (.length pass)) "Password must have at least 6 chars."
+   (not= pass repeat-pass) "Password and confirmed password are not equal."
+   :else true))
 
-(defn do-register 
+(defn do-register
   "If all user data are entered properly, add user to database."
   [name email user pass repeat-pass]
   (let [lower-user (clojure.string/lower-case user)
-        error-msg (verify-register-form name email lower-user pass repeat-pass)]
+        error-msg (verify-register-form name email
+                                        lower-user pass
+                                        repeat-pass)]
     (if-not (string? error-msg)
       (do
         (insert-user name email lower-user pass)

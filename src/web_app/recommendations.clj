@@ -3,7 +3,7 @@
 
 (defn- book-critics
   "Gets all books ids with their user ratings."
-  [] 
+  []
   (let [sq (for [book (get-books)]
              (conj [] (:_id book)
                    (for [review (:reviews book)]
@@ -11,14 +11,16 @@
                            (:authorId review)
                            (:ratingValue review)))))]
     (zipmap (map first sq)
-            (flatten (map #(map (fn [s] (into {} s)) (map set (rest %))) sq)))))
+            (flatten
+             (map #(map (fn [s] (into {} s))
+                        (map set (rest %))) sq)))))
 
-(defn- get-shared-prefs 
+(defn- get-shared-prefs
   "Gets shared user ratings between the specified books."
   [prefs book-critic1 book-critic2]
   (filter (prefs book-critic1) (keys (prefs book-critic2))))
 
-(defn sim-pearson 
+(defn sim-pearson
   "Calculates the pearson correlation score based on shared ratings between the
    specified books."
   [prefs critic1 critic2]
@@ -34,8 +36,9 @@
             sum2sq (reduce + 0 (map #(Math/pow % 2) ratings2))
             psum (reduce + 0 (map * ratings1 ratings2))
             numerator (- psum (/ (* sum1 sum2) length))
-            denominator (Math/sqrt (* (- sum1sq (/ (Math/pow sum1 2) length)) 
-                                      (- sum2sq (/ (Math/pow sum2 2) length))))]
+            denominator (Math/sqrt (* (- sum1sq (/ (Math/pow sum1 2) length))
+                                      (- sum2sq (/ (Math/pow sum2 2) length))))
+            ]
         (if (== 0 denominator)
           0.0
           (/ numerator denominator))))))
@@ -45,8 +48,9 @@
                    (compare [(book-scores key2) key2]
                             [(book-scores key1) key1]))))
 
-(defn get-similar-books-pearson 
-  "Gets sorted list of books and their similarity scores calculated with Pearson."
+(defn get-similar-books-pearson
+  "Gets sorted list of books and their similarity scores
+  calculated with Pearson."
   [book-id]
   (let [prefs (book-critics)
         books-ids (keys prefs)
@@ -54,23 +58,25 @@
                                    (sim-pearson prefs book-id %)) books-ids)
         m (zipmap books-ids similarity-scores)]
     (filter #(if-let [value (val %)]
-               (>= value 0)) 
+               (>= value 0))
             (into (sort-book-scores m)  m))))
 
-(defn sim-euclidean 
+(defn sim-euclidean
   "Calculates the euclidean distance score based on shared ratings between the
    specified books."
   [prefs critic1 critic2]
   (let [shared (get-shared-prefs prefs critic1 critic2)
         denominator (reduce #(+ %1 (Math/pow (- (get-in prefs [critic1 %2])
-                                                (get-in prefs [critic2 %2])) 2))
+                                                (get-in prefs [critic2 %2]))
+                                             2))
                             0 shared)]
     (if (== (count shared) 0)
       0
       (/ 1 (+ 1 denominator)))))
 
-(defn get-similar-books-euclidean 
-  "Gets sorted list of books and their similarity scores calculated with Euclidean."
+(defn get-similar-books-euclidean
+  "Gets sorted list of books and their similarity scores
+  calculated with Euclidean."
   [book-id]
   (let [prefs (book-critics)
         books-ids (keys prefs)

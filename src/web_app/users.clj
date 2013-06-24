@@ -6,11 +6,11 @@
         [web-app.mongo :only [get-users delete-user]]))
 
 
-(defn- users-table 
+(defn- users-table
   "List all users."
-  [users-fn] 
+  [users-fn]
   [:div.body
-   [:h2 "Users"] 
+   [:h2 "Users"]
    [:div.form
     [:table
      [:tr
@@ -23,23 +23,23 @@
                   [:td (i :name)]
                   [:td (i :user)]
                   [:td (i :email)]
-                  [:td 
+                  [:td
                    (form-to [:delete "/users"]
                             (hidden-field :id (i :_id))
                             (submit-button "Delete"))]]))]]])
 
-(defn users-page 
+(defn users-page
   "Show users page and enable deleting option if user is admin."
   [uri]
   (template-page
-    "Users page" 
-    uri 
-    (if (= "admin" (session/get :user)) 
+    "Users page"
+    uri
+    (if (= "admin" (session/get :user))
       (users-table get-users)
       [:div.body
        [:div.error "You are not allowed to see this page."]])))
 
-(defn do-delete-user 
+(defn do-delete-user
   "Delete user."
   [id]
   (do
